@@ -7,7 +7,15 @@ TA_CROSS_COMPILE ?= $(CROSS_COMPILE)
 # Overall targets
 ################################################################################
 .PHONY: all
-all: ta
+all: ta lib
+
+################################################################################
+# Linux user space library
+################################################################################
+.PHONY: lib
+lib:
+	@echo "Building $@"
+	@$(MAKE) -C lib CROSS_COMPILE="$(HOST_CROSS_COMPILE)" --no-builtin-variables --silent
 
 ################################################################################
 # Trusted Appplication
