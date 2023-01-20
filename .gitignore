@@ -16,6 +16,5 @@ GPATH
 GRTAGS
 GSYMS
 GTAGS
-host/optee_example_attestation
+locki/test/locki_test
 out/
-test/attest

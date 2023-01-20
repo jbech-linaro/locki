@@ -149,7 +149,7 @@ echo "  PLATFORM_FLAVOR: ${PLATFORM_FLAVOR}"
 echo "  CROSS_COMPILE:   ${CROSS_COMPILE}"
 echo -e "  LOAD_ADDRESS:    ${LOAD_ADDRESS}\n"
 
-printf "\nBuilding 'lucki'\n"
+printf "\nBuilding 'Locki'\n"
 cd $CURDIR/${TARGET}
 make CROSS_COMPILE=${CROSS_COMPILE} CFG_TEE_TA_LOG_LEVEL=4 ${CLEAN} V=${V}
 
@@ -175,10 +175,10 @@ if [ ! -z ${SYNC} ]; then
 	M1="mkdir -p /host && mount -t 9p -o trans=virtio host /host"
 	echo "   alias m1='${M1}'"
 
-	M2="cd /lib/optee_armtz && ln -sf /host/optee_examples/${TARGET}/ta/${TA_FILE} ${TA_FILE}"
+	M2="cd /lib/optee_armtz && ln -sf /host/locki/${TARGET}/ta/${TA_FILE} ${TA_FILE}"
 	echo "   alias m2='${M2}'"
 
-	M3="cd /usr/bin && ln -sf /host/locki/locki/host/optee_example_${TARGET} ${TARGET}"
+	M3="cd /usr/bin && ln -sf /host/locki/locki/host/${TARGET} ${TARGET}"
 	echo "   alias m3='${M3}'"
 	M4="cd /usr/lib && ln -sf /host/locki/locki/lib/liblocki.so liblocki.so"
 	echo "   alias m4='${M4}'"
