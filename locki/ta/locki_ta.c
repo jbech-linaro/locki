@@ -35,6 +35,7 @@
 #include <tee_internal_api.h>
 #include <tee_internal_api_extensions.h>
 #include <tee_api_defines.h>
+#include <pta_system.h>
 #include <utee_defines.h>
 
 #include <common.h>
@@ -164,6 +165,41 @@ void TA_CloseSessionEntryPoint(void __maybe_unused *sess_ctx)
 /*******************************************************************************
  * Utility functions
  ******************************************************************************/
+static TEE_Result get_ta_unique_key(uint8_t *key, uint8_t key_size,
+				    uint8_t *extra, uint16_t extra_size)
+{
+	static const TEE_UUID system_uuid = PTA_SYSTEM_UUID;
+	TEE_TASessionHandle handle = TEE_HANDLE_NULL;
+	uint32_t ret_origin = 0;
+	TEE_Result res = TEE_ERROR_GENERIC;
+	TEE_Param params[4] = { 0 };
+	uint32_t param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
+					       TEE_PARAM_TYPE_MEMREF_OUTPUT,
+					       TEE_PARAM_TYPE_NONE,
+					       TEE_PARAM_TYPE_NONE);
+	if (!key)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+        res = TEE_OpenTASession(&system_uuid, 0, 0, NULL, &handle, &ret_origin);
+        if (res != TEE_SUCCESS)
+		return TEE_ERROR_GENERIC;
+
+	/* To provide salt for the generated key. */
+	if (extra && extra_size > 0) {
+		params[0].memref.buffer = extra;
+		params[0].memref.size = extra_size;
+	}
+
+	params[1].memref.buffer = key;
+	params[1].memref.size = key_size;
+        res = TEE_InvokeTACommand(handle, 100, PTA_SYSTEM_DERIVE_TA_UNIQUE_KEY,
+                                  param_types, params, &ret_origin);
+
+        TEE_CloseTASession(handle);
+
+	return res;
+}
+
 static void free_crypto_context(struct crypto_context *ctx)
 {
 	if (!ctx) {
@@ -495,6 +531,7 @@ static TEE_Result create_password_digest(struct user *user, uint8_t *password,
 {
 	TEE_Result res = TEE_ERROR_GENERIC;
 	struct crypto_context ctx = { 0 };
+	uint8_t ta_unique_key[TEE_SHA256_HASH_SIZE] = { 0 };
 
 	if (!user || !password || password_len == 0)
 		return TEE_ERROR_BAD_PARAMETERS;
@@ -509,7 +546,7 @@ static TEE_Result create_password_digest(struct user *user, uint8_t *password,
 
 	if (user->flags & USER_SALT_PASSWORD) {
 		if (!is_salt_set(user)) {
-		DMSG("Salt is not set");
+			DMSG("Salt is not set");
 			if (salt) {
 				// Use the provided salt by the client.
 				DMSG("Using user provided salt");
@@ -522,6 +559,24 @@ static TEE_Result create_password_digest(struct user *user, uint8_t *password,
 			}
 		}
 		res = sha256_update(&ctx, user->salt, user->salt_len);
+		if (res != TEE_SUCCESS)
+			goto err;
+	}
+
+	if (user->flags & USER_TA_UNIQUE_PASSWORD) {
+		if (user->flags & USER_SALT_PASSWORD) {
+                        res = get_ta_unique_key(ta_unique_key,
+                                                sizeof(ta_unique_key),
+                                                user->salt, user->salt_len);
+		} else {
+                        res = get_ta_unique_key(ta_unique_key,
+                                                sizeof(ta_unique_key), NULL, 0);
+                }
+
+		if (res != TEE_SUCCESS)
+			goto err;
+
+		res = sha256_update(&ctx, ta_unique_key, sizeof(ta_unique_key));
 		if (res != TEE_SUCCESS)
 			goto err;
 	}

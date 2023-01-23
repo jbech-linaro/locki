@@ -340,6 +340,56 @@ TEST(measure, measure_unauthenticated)
 }
 
 /*
+ * This will create a user that will use salt, but since no salt has been
+ * provided, the TA will generate a random salt for us. In addition to that,
+ * since the USER_TA_UNIQUE_PASSWORD is set, that will also be used when
+ * creating the password. We end up with:
+ *   derived password = sha256(provided password | random_salt | ta_unique_key)
+ */
+TEST(user, create_user_salt_ta_unique)
+{
+        char username[] = "user-salt-with-ta-uniq";
+        char password[] = "user-salt-with-ta-uniq";
+        uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
+        CHECK_EQ(create_user(username, strlen(username), password,
+                             strlen(password), NULL, 0, flags),
+                 0);
+}
+
+/*
+ * This will create a user that will use salt, with a user provided salt.
+ * In addition to that, since the USER_TA_UNIQUE_PASSWORD is set, that will also
+ * be used when creating the password. We end up with:
+ *   derived password = sha256(provided password | provided salt | ta_unique_key(provided salt)
+ */
+TEST(user, create_user_salt_ta_unique_salt)
+{
+        char username[] = "user-salt-provided-with-ta-uniq";
+        char password[] = "user-salt-provided-with-ta-uniq";
+	uint8_t salt[] = { 0x30, 0x31, 0x32, 0x33 };
+        uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
+        CHECK_EQ(create_user(username, strlen(username), password,
+                             strlen(password), salt, sizeof(salt), flags),
+                 0);
+}
+
+/*
+ * This will create a user that doesn't enable salt. Since the
+ * USER_TA_UNIQUE_PASSWORD is set, the TA unique key will be used as part of
+ * salting the password. I.e., we end up with:
+ *   derived password = sha256(provided password | ta_unique_key)
+ */
+TEST(user, create_user_salt_ta_unique_no_salt)
+{
+        char username[] = "user-salt-with-ta-uniq-no-salt";
+        char password[] = "user-salt-with-ta-uniq-no-salt";
+        uint32_t flags = USER_TA_UNIQUE_PASSWORD;
+        CHECK_EQ(create_user(username, strlen(username), password,
+                             strlen(password), NULL, 0, flags),
+                 0);
+}
+
+/*
  * Dump all existing users into the secure UART.
  * FIMXE: Should not be available on debug builds.
  */
