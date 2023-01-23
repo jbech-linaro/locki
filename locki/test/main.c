@@ -249,6 +249,22 @@ TEST(user, create_user_salt_ta_unique_no_salt)
 }
 
 /*
+ * Creates a user that allows unauthenticated (password less) measures. This
+ * user also enabled and uses a provided salt and leverage the TA unique keys to
+ * derive it's password.
+ */
+TEST(user, create_user_unauthenticated_measure_ta_unique)
+{
+	char username[] = "user-unauth-measure-ta-uniq";
+	char password[] = "abc";
+	uint8_t salt[] = { 0x30, 0x31, 0x32, 0x33 };
+	uint32_t flags = USER_SALT_PASSWORD | USER_UNAUTHENTICATED_MEASURE | USER_TA_UNIQUE_PASSWORD;
+        CHECK_EQ(create_user(username, strlen(username), password,
+                             strlen(password), salt, sizeof(salt), flags),
+                 0);
+}
+
+/*
  * Testing various bad parameters when trying to make a measurement. Note that
  * this test, depends on that a user with username 'user' and password 'user'
  * previously has been created.
@@ -257,6 +273,7 @@ TEST(measure, bad_parameters)
 {
         char username[] = "user";
         char password[] = "user";
+	char too_long_username[] = "012345678901234567890123456789012";
         uint8_t reg[] = { 0x1 };
         uint8_t data[]= { 'a', 'b', 'c' };
 
@@ -288,6 +305,12 @@ TEST(measure, bad_parameters)
 	/* Data size = 0 */
         CHECK_NE(measure(username, strlen(username), password, sizeof(password),
                          reg, sizeof(reg), data, 0),
+                 0);
+
+	/* Data size = 0 */
+        CHECK_NE(measure(too_long_username, strlen(too_long_username), password,
+                         sizeof(password), reg, sizeof(reg), data,
+                         sizeof(data)),
                  0);
 }
 
@@ -442,6 +465,50 @@ TEST(measure, measure_normal_ta_unique)
                    0);
         CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
 }
+
+TEST(measure, measure_unauthenticated_ta_unique)
+{
+	char username[] = "user-unauth-measure-ta-uniq";
+	uint8_t reg[] = { 0x1 };
+	uint8_t data[] =  { 'a', 'b', 'c' };
+	uint8_t digest[32]; /* FIXME: Use a SHA256 length define */
+	uint8_t expected1[] = {
+		0x36, 0x5a, 0xa7, 0xd8,  0xf7, 0xf9, 0x40, 0x2c,
+		0x4b, 0x94, 0x34, 0x50,  0x2b, 0x4c, 0xc8, 0x9d,
+		0xdb, 0x09, 0xfe, 0x50,  0xd7, 0xcd, 0x95, 0xb4,
+		0x93, 0xb8, 0x34, 0xc6,  0x2d, 0x5a, 0x53, 0x70 };
+
+	uint8_t expected2[] = {
+		0x0f, 0x25, 0xde, 0x75,  0x7a, 0x05, 0xfd, 0xcd,
+		0x69, 0xbe, 0xca, 0xeb,  0x50, 0x67, 0x5b, 0x3d,
+		0x75, 0x2b, 0x78, 0xfd,  0x31, 0x92, 0x9c, 0xdb,
+		0xc8, 0x35, 0x2b, 0x5d,  0xef, 0xb6, 0x83, 0xa1 };
+
+	/*
+	 * Hash(32 * '0x0' || abc)
+	 *   -> expected: 365aa7d8f7f9402c4b9434502b4cc89ddb09fe50d7cd95b493b834c62d5a5370
+	 */
+        REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg, sizeof(reg),
+                         data, sizeof(data)),
+                 0);
+        REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
+                             sizeof(reg), digest),
+                 0);
+        CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
+
+	/*
+	 * Hash(32 * '0x0' || abc || abc)
+	 *   -> expected: 0f25de757a05fdcd69becaeb50675b3d752b78fd31929cdbc8352b5defb683a1
+	 */
+        REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg, sizeof(reg),
+                         data, sizeof(data)),
+                 0);
+        REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
+                             sizeof(reg), digest),
+                 0);
+        CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
+}
+
 
 /*
  * Dump all existing users into the secure UART.
