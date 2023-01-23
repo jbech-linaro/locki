@@ -323,7 +323,7 @@ TEST(measure, measure_normal)
         REQUIRE_EQ(get_measure(username, strlen(username), password,
                                strlen(password), reg, sizeof(reg), digest),
                    0);
-        CHECK_EQ(memcmp(digest, expected1, sizeof(expected1)), 0);
+        CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
 
         /*
 	 * Hash(32 * '0x0' || abc || abc)
@@ -337,7 +337,7 @@ TEST(measure, measure_normal)
         REQUIRE_EQ(get_measure(username, strlen(username), password,
                                strlen(password), reg, sizeof(reg), digest),
                    0);
-        CHECK_EQ(memcmp(digest, expected2, sizeof(expected2)), 0);
+        CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
 
         /* Try authenticated measure, with incorrect passsword */
         CHECK_NE(measure(username, strlen(username), incorrect_password,
@@ -374,7 +374,7 @@ TEST(measure, measure_unauthenticated)
         REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
                              sizeof(reg), digest),
                  0);
-        CHECK_EQ(memcmp(digest, expected1, sizeof(expected1)), 0);
+        CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
 
 	/*
 	 * Hash(32 * '0x0' || abc || abc)
@@ -386,7 +386,7 @@ TEST(measure, measure_unauthenticated)
         REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
                              sizeof(reg), digest),
                  0);
-        CHECK_EQ(memcmp(digest, expected2, sizeof(expected2)), 0);
+        CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
 }
 
 /*
