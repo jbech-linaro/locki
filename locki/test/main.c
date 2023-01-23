@@ -199,6 +199,56 @@ TEST(user, create_user_salt_not_used_but_set)
 }
 
 /*
+ * This will create a user that will use salt, but since no salt has been
+ * provided, the TA will generate a random salt for us. In addition to that,
+ * since the USER_TA_UNIQUE_PASSWORD is set, that will also be used when
+ * creating the password. We end up with:
+ *   derived password = sha256(provided password | random_salt | ta_unique_key)
+ */
+TEST(user, create_user_salt_ta_unique)
+{
+        char username[] = "user-salt-rand-with-ta-uniq";
+        char password[] = "user-salt-rand-with-ta-uniq";
+        uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
+        CHECK_EQ(create_user(username, strlen(username), password,
+                             strlen(password), NULL, 0, flags),
+                 0);
+}
+
+/*
+ * This will create a user that will use salt, with a user provided salt.
+ * In addition to that, since the USER_TA_UNIQUE_PASSWORD is set, that will also
+ * be used when creating the password. We end up with:
+ *   derived password = sha256(provided password | provided salt | ta_unique_key(provided salt)
+ */
+TEST(user, create_user_salt_ta_unique_salt)
+{
+        char username[] = "user-salt-provided-with-ta-uniq";
+        char password[] = "user-salt-provided-with-ta-uniq";
+	uint8_t salt[] = { 0x30, 0x31, 0x32, 0x33 };
+        uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
+        CHECK_EQ(create_user(username, strlen(username), password,
+                             strlen(password), salt, sizeof(salt), flags),
+                 0);
+}
+
+/*
+ * This will create a user that doesn't enable salt. Since the
+ * USER_TA_UNIQUE_PASSWORD is set, the TA unique key will be used as part of
+ * salting the password. I.e., we end up with:
+ *   derived password = sha256(provided password | ta_unique_key)
+ */
+TEST(user, create_user_salt_ta_unique_no_salt)
+{
+        char username[] = "user-salt-with-ta-uniq-no-salt";
+        char password[] = "user-salt-with-ta-uniq-no-salt";
+        uint32_t flags = USER_TA_UNIQUE_PASSWORD;
+        CHECK_EQ(create_user(username, strlen(username), password,
+                             strlen(password), NULL, 0, flags),
+                 0);
+}
+
+/*
  * Testing various bad parameters when trying to make a measurement. Note that
  * this test, depends on that a user with username 'user' and password 'user'
  * previously has been created.
@@ -340,53 +390,57 @@ TEST(measure, measure_unauthenticated)
 }
 
 /*
- * This will create a user that will use salt, but since no salt has been
- * provided, the TA will generate a random salt for us. In addition to that,
- * since the USER_TA_UNIQUE_PASSWORD is set, that will also be used when
- * creating the password. We end up with:
- *   derived password = sha256(provided password | random_salt | ta_unique_key)
+ * This tests that the measurements are working as expected, when having the
+ * USER_TA_UNIQUE_PASSWORD flag set.
+ *
+ * Pre-condition: Successfully run test (user, create_user_salt_ta_unique)
  */
-TEST(user, create_user_salt_ta_unique)
+TEST(measure, measure_normal_ta_unique)
 {
-        char username[] = "user-salt-with-ta-uniq";
-        char password[] = "user-salt-with-ta-uniq";
-        uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), NULL, 0, flags),
-                 0);
-}
+        char password[] = "user-salt-rand-with-ta-uniq";
+        char username[] = "user-salt-rand-with-ta-uniq";
+	uint8_t data[] =  { 'a', 'b', 'c' };
+	uint8_t digest[32]; /* FIXME: Use a SHA256 length define */
+	uint8_t reg[] = { 0x1 };
+	uint8_t expected1[] = {
+		0x36, 0x5a, 0xa7, 0xd8,  0xf7, 0xf9, 0x40, 0x2c,
+		0x4b, 0x94, 0x34, 0x50,  0x2b, 0x4c, 0xc8, 0x9d,
+		0xdb, 0x09, 0xfe, 0x50,  0xd7, 0xcd, 0x95, 0xb4,
+		0x93, 0xb8, 0x34, 0xc6,  0x2d, 0x5a, 0x53, 0x70 };
 
-/*
- * This will create a user that will use salt, with a user provided salt.
- * In addition to that, since the USER_TA_UNIQUE_PASSWORD is set, that will also
- * be used when creating the password. We end up with:
- *   derived password = sha256(provided password | provided salt | ta_unique_key(provided salt)
- */
-TEST(user, create_user_salt_ta_unique_salt)
-{
-        char username[] = "user-salt-provided-with-ta-uniq";
-        char password[] = "user-salt-provided-with-ta-uniq";
-	uint8_t salt[] = { 0x30, 0x31, 0x32, 0x33 };
-        uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), salt, sizeof(salt), flags),
-                 0);
-}
+	uint8_t expected2[] = {
+		0x0f, 0x25, 0xde, 0x75,  0x7a, 0x05, 0xfd, 0xcd,
+		0x69, 0xbe, 0xca, 0xeb,  0x50, 0x67, 0x5b, 0x3d,
+		0x75, 0x2b, 0x78, 0xfd,  0x31, 0x92, 0x9c, 0xdb,
+		0xc8, 0x35, 0x2b, 0x5d,  0xef, 0xb6, 0x83, 0xa1 };
 
-/*
- * This will create a user that doesn't enable salt. Since the
- * USER_TA_UNIQUE_PASSWORD is set, the TA unique key will be used as part of
- * salting the password. I.e., we end up with:
- *   derived password = sha256(provided password | ta_unique_key)
- */
-TEST(user, create_user_salt_ta_unique_no_salt)
-{
-        char username[] = "user-salt-with-ta-uniq-no-salt";
-        char password[] = "user-salt-with-ta-uniq-no-salt";
-        uint32_t flags = USER_TA_UNIQUE_PASSWORD;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), NULL, 0, flags),
-                 0);
+	/*
+	 * Hash(32 * '0x0' || abc)
+	 *   -> expected:
+	 * 365aa7d8f7f9402c4b9434502b4cc89ddb09fe50d7cd95b493b834c62d5a5370
+	 */
+        REQUIRE_EQ(measure(username, strlen(username), password,
+                           strlen(password), reg, sizeof(reg), data,
+                           sizeof(data)),
+                   0);
+        REQUIRE_EQ(get_measure(username, strlen(username), password,
+                               strlen(password), reg, sizeof(reg), digest),
+                   0);
+        CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
+
+        /*
+	 * Hash(32 * '0x0' || abc || abc)
+	 *   -> expected:
+	 * 0f25de757a05fdcd69becaeb50675b3d752b78fd31929cdbc8352b5defb683a1
+	 */
+        REQUIRE_EQ(measure(username, strlen(username), password,
+                           strlen(password), reg, sizeof(reg), data,
+                           sizeof(data)),
+                   0);
+        REQUIRE_EQ(get_measure(username, strlen(username), password,
+                               strlen(password), reg, sizeof(reg), digest),
+                   0);
+        CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
 }
 
 /*
