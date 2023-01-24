@@ -43,6 +43,7 @@ ROOT=${PWD}
 ROOT=`dirname $ROOT`
 
 TARGET=locki
+BEAR=
 CLEAN=
 SYNC=
 SHOW_GDB_INFO=true
@@ -74,7 +75,7 @@ export PLATFORM_FLAVOR=qemu_virt
 CROSS_COMPILE=${ARCH}-${OS}-${ABI}-
 export CROSS_COMPILE=${BUILDROOT_OUT}/host/bin/${CROSS_COMPILE}
 
-while getopts a:cd:f:gil:p:sht:v: option
+while getopts a:bcd:f:gil:p:sht:v: option
 do
 	case "${option}"
 		in
@@ -84,6 +85,10 @@ do
 			export TA_DEV_KIT_DIR=${ROOT}/optee_os/out/arm/export-ta_arm32
 		   fi
 		   ;;
+		b) echo "Generate json file with bear"
+		   BEAR='bear --append --'
+		   ;;
+
 		c) CLEAN=clean;;
 
 		d) MOUNT_DIR="NOT_IMPLEMENTED";;
@@ -151,7 +156,7 @@ echo -e "  LOAD_ADDRESS:    ${LOAD_ADDRESS}\n"
 
 printf "\nBuilding 'Locki'\n"
 cd $CURDIR/${TARGET}
-make CROSS_COMPILE=${CROSS_COMPILE} CFG_TEE_TA_LOG_LEVEL=4 ${CLEAN} V=${V}
+$BEAR make CROSS_COMPILE=${CROSS_COMPILE} CFG_TEE_TA_LOG_LEVEL=4 ${CLEAN} V=${V}
 
 # There is no ELF available after running clean, hence exit.
 if [ ! -z ${CLEAN} ];then
