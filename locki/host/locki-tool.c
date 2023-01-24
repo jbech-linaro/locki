@@ -41,6 +41,8 @@ int print_help(void)
 	printf("  user        For user administration\n");
 	printf("  measure     To make measurements\n");
 	printf("\n");
+	printf("  debug       Various debug commands\n");
+	printf("\n");
 
 	return 0;
 }
@@ -56,6 +58,8 @@ int main(int argc, char *argv[])
 		res = user_main(argc-1, &argv[1]);
 	else if (argc > 1 && (!strcmp(argv[1], "measure")))
 		res = measure_main(argc-1, &argv[1]);
+	else if (argc > 1 && (!strcmp(argv[1], "debug")))
+		res = debug_main(argc-1, &argv[1]);
 	else
 		print_help();
 

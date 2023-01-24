@@ -23,12 +23,11 @@ LDADD += -lteec -L$(TEEC_EXPORT)/lib \
 	 -llocki -L../lib
 
 BINARY := locki
+SRCS := $(wildcard *.c)
+OBJS := $(SRCS:.c=.o)
 
 .PHONY: all
 all: $(BINARY)
-
-
-OBJS := locki-tool.o locki-measure.o locki-user.o
 
 $(BINARY): $(OBJS)
 	@echo "  LD      $(notdir $@)"

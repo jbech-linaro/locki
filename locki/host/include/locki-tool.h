@@ -4,4 +4,6 @@
 int user_main(int argc, char *argv[]);
 int measure_main(int argc, char *argv[]);
 
+int debug_main(int argc, char *argv[]);
+
 #endif
