@@ -60,8 +60,8 @@ static TEEC_Session teec_init_session;
 static TEEC_Context ctx;
 
 struct tee_data {
-        TEEC_Operation operation;
-        TEEC_Session session;
+	TEEC_Operation operation;
+	TEEC_Session session;
 };
 
 /* Shared tee data state between various calls. */
@@ -129,8 +129,8 @@ static TEEC_Result create_init_session(void)
         op.paramTypes = TEEC_PARAM_TYPES(TEEC_NONE, TEEC_NONE, TEEC_NONE,
 					 TEEC_NONE);
 
-        res = TEEC_OpenSession(&ctx, &teec_init_session, &uuid,
-                               TEEC_LOGIN_PUBLIC, NULL, NULL, &err_origin);
+	res = TEEC_OpenSession(&ctx, &teec_init_session, &uuid,
+			       TEEC_LOGIN_PUBLIC, NULL, NULL, &err_origin);
 	if (res != TEEC_SUCCESS)
 		goto err;
 
@@ -171,8 +171,8 @@ static int open_session(void)
 
 	initialize();
 
-        res = TEEC_OpenSession(&ctx, &td.session, &uuid,
-                               TEEC_LOGIN_PUBLIC, NULL, NULL, &err_origin);
+	res = TEEC_OpenSession(&ctx, &td.session, &uuid,
+			       TEEC_LOGIN_PUBLIC, NULL, NULL, &err_origin);
 	if (res != TEEC_SUCCESS)
 		goto err;
 err:
@@ -194,15 +194,14 @@ static void close_session(void)
  */
 int terminate(void)
 {
-        if (init_session_exists()) {
-                TEEC_CloseSession(&teec_init_session);
-                init_session_initialized = false;
-        }
+	if (init_session_exists()) {
+		TEEC_CloseSession(&teec_init_session);
+		init_session_initialized = false;
+	}
 
-        TEEC_FinalizeContext(&ctx);
-        return 0;
+	TEEC_FinalizeContext(&ctx);
+	return 0;
 }
-
 
 /*
  * Run a command within the Locki TA.

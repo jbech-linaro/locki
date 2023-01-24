@@ -565,13 +565,13 @@ static TEE_Result create_password_digest(struct user *user, uint8_t *password,
 
 	if (user->flags & USER_TA_UNIQUE_PASSWORD) {
 		if (user->flags & USER_SALT_PASSWORD) {
-                        res = get_ta_unique_key(ta_unique_key,
-                                                sizeof(ta_unique_key),
-                                                user->salt, user->salt_len);
+			res = get_ta_unique_key(ta_unique_key,
+						sizeof(ta_unique_key),
+						user->salt, user->salt_len);
 		} else {
-                        res = get_ta_unique_key(ta_unique_key,
-                                                sizeof(ta_unique_key), NULL, 0);
-                }
+			res = get_ta_unique_key(ta_unique_key,
+						sizeof(ta_unique_key), NULL, 0);
+		}
 
 		if (res != TEE_SUCCESS)
 			goto err;
@@ -601,23 +601,23 @@ static bool password_is_correct(struct user *user, uint8_t *password,
 {
 	TEE_Result res = TEE_ERROR_GENERIC;
 
-        /*
-         * Create a temporary user, where we will try to re-create the same
-         * derived password as originally done when creating the user.
-         */
-        struct user tmp_user = { 0 };
+	/*
+	 * Create a temporary user, where we will try to re-create the same
+	 * derived password as originally done when creating the user.
+	 */
+	struct user tmp_user = { 0 };
 
 	/* Need to copy the flags from the user we're trying to verify. */
 	tmp_user.flags = user->flags;
 
-        /*
-         * The salt is not provided and shouldn't have to be provided, we simply
-         * use the saved one from the user we're trying to authenticate. We
-         * could also copy these fields to the tmp_user, but that's just un
-         * unnecessary operation.
-         */
-        res = create_password_digest(&tmp_user, password, password_len,
-                                     user->salt, user->salt_len);
+	/*
+	 * The salt is not provided and shouldn't have to be provided, we simply
+	 * use the saved one from the user we're trying to authenticate. We
+	 * could also copy these fields to the tmp_user, but that's just un
+	 * unnecessary operation.
+	 */
+	res = create_password_digest(&tmp_user, password, password_len,
+				     user->salt, user->salt_len);
 	if (res != TEE_SUCCESS)
 		return false;
 
@@ -627,10 +627,11 @@ static bool password_is_correct(struct user *user, uint8_t *password,
          * Note, to avoid timing attacks, this has to be constant time
          * comparison which TEE_MemCompare is.
          */
-        if (TEE_MemCompare(user->password , tmp_user.password, user->password_len))
+	if (TEE_MemCompare(user->password, tmp_user.password,
+			   user->password_len))
 		return false;
 
-	return true;
+        return true;
 }
 
 static struct user* find_and_validate_user(uint8_t *username, size_t username_len,
@@ -838,11 +839,11 @@ static TEE_Result create_user(uint8_t *username, uint32_t username_len,
 	TEE_Result res = TEE_ERROR_BAD_PARAMETERS;
 	struct user *user = NULL;
 
-        /*
-         * FIXME: Perhaps allow empty password and generate a random password
-         * for the user.
-         */
-        if (!username || username_len == 0 || username_len > 32)
+	/*
+	 * FIXME: Perhaps allow empty password and generate a random password
+	 * for the user.
+	 */
+	if (!username || username_len == 0 || username_len > 32)
 		return res;
 
 	if (password && password_len == 0)
@@ -857,8 +858,8 @@ static TEE_Result create_user(uint8_t *username, uint32_t username_len,
 		goto err;
 	}
 
-        res = add_user(username, username_len, password, password_len, salt,
-                       salt_len, flags);
+	res = add_user(username, username_len, password, password_len, salt,
+		       salt_len, flags);
 err:
 	return res;
 }
@@ -1015,8 +1016,8 @@ static TEE_Result ta_create_user(uint32_t param_types, TEE_Param params[4])
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-        return create_user(user, user_len, password, password_len, salt,
-                           salt_len, flags);
+	return create_user(user, user_len, password, password_len, salt,
+			   salt_len, flags);
 }
 
 

@@ -53,5 +53,5 @@ const char *taf_to_str(uint32_t cmd_id)
 	TAF(TA_LOCKI_CMD_DEBUG_DUMP_REGISTERS);
 	default:
 		return "Unknown TAF id";
-        }
+	}
 }

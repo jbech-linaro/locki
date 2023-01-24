@@ -114,24 +114,24 @@ TEST(user, bad_parameters)
 	uint8_t salt[] = { 0x0, 0x1, 0x2, 0x3 };
 
 	/* No username provided. */
-        CHECK_NE(create_user(NULL, sizeof(username), password, sizeof(password),
-                             salt, sizeof(salt), 0),
-                 0);
+	CHECK_NE(create_user(NULL, sizeof(username), password, sizeof(password),
+			     salt, sizeof(salt), 0),
+		 0);
 
         /* Username length = 0. */
-        CHECK_NE(create_user(username, 0, password, sizeof(password), salt,
-                             sizeof(salt), 0),
-                 0);
+	CHECK_NE(create_user(username, 0, password, sizeof(password), salt,
+			     sizeof(salt), 0),
+		 0);
 
         /* Password provided, but length = 0 */
-        CHECK_NE(create_user(username, strlen(username), password, 0, salt,
-                             sizeof(salt), 0),
-                 0);
+	CHECK_NE(create_user(username, strlen(username), password, 0, salt,
+			     sizeof(salt), 0),
+		 0);
 
 	/* Username longer than the maximum allowed (32). */
-        CHECK_NE(create_user(username_too_long, strlen(username_too_long),
-                             password, 0, salt, sizeof(salt), 0),
-                 0);
+	CHECK_NE(create_user(username_too_long, strlen(username_too_long),
+			     password, 0, salt, sizeof(salt), 0),
+		 0);
 }
 
 /*
@@ -143,9 +143,9 @@ TEST(user, create_user)
 	char password[] = "user";
 	uint8_t salt[] = { 0x30, 0x31, 0x32, 0x33 };
 	uint32_t flags = USER_SALT_PASSWORD;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), salt, sizeof(salt), flags),
-                 0);
+	CHECK_EQ(create_user(username, strlen(username), password,
+			     strlen(password), salt, sizeof(salt), flags),
+		 0);
 }
 
 /*
@@ -158,9 +158,9 @@ TEST(user, create_user_unauthenticated_measure)
 	char password[] = "abc";
 	uint8_t salt[] = { 0x30, 0x31, 0x32, 0x33 };
 	uint32_t flags = USER_SALT_PASSWORD | USER_UNAUTHENTICATED_MEASURE;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), salt, sizeof(salt), flags),
-                 0);
+	CHECK_EQ(create_user(username, strlen(username), password,
+			     strlen(password), salt, sizeof(salt), flags),
+		 0);
 }
 
 /*
@@ -171,9 +171,9 @@ TEST(user, create_user_salt_not_used)
 	char username[] = "user-salt-not-used";
 	char password[] = "user-salt-not-used";
 	uint32_t flags = 0;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), NULL, 0, flags),
-                 0);
+	CHECK_EQ(create_user(username, strlen(username), password,
+			     strlen(password), NULL, 0, flags),
+		 0);
 }
 
 /*
@@ -190,12 +190,12 @@ TEST(user, create_user_salt_not_used)
  */
 TEST(user, create_user_salt_not_used_but_set)
 {
-        char username[] = "user-salt-not-used-but-set";
-        char password[] = "user-salt-not-used-but-set";
-        uint32_t flags = USER_SALT_PASSWORD;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), NULL, 0, flags),
-                 0);
+	char username[] = "user-salt-not-used-but-set";
+	char password[] = "user-salt-not-used-but-set";
+	uint32_t flags = USER_SALT_PASSWORD;
+	CHECK_EQ(create_user(username, strlen(username), password,
+			     strlen(password), NULL, 0, flags),
+		 0);
 }
 
 /*
@@ -207,12 +207,12 @@ TEST(user, create_user_salt_not_used_but_set)
  */
 TEST(user, create_user_salt_ta_unique)
 {
-        char username[] = "user-salt-rand-with-ta-uniq";
-        char password[] = "user-salt-rand-with-ta-uniq";
-        uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), NULL, 0, flags),
-                 0);
+	char username[] = "user-salt-rand-with-ta-uniq";
+	char password[] = "user-salt-rand-with-ta-uniq";
+	uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
+	CHECK_EQ(create_user(username, strlen(username), password,
+			     strlen(password), NULL, 0, flags),
+		 0);
 }
 
 /*
@@ -223,13 +223,13 @@ TEST(user, create_user_salt_ta_unique)
  */
 TEST(user, create_user_salt_ta_unique_salt)
 {
-        char username[] = "user-salt-provided-with-ta-uniq";
-        char password[] = "user-salt-provided-with-ta-uniq";
+	char username[] = "user-salt-provided-with-ta-uniq";
+	char password[] = "user-salt-provided-with-ta-uniq";
 	uint8_t salt[] = { 0x30, 0x31, 0x32, 0x33 };
-        uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), salt, sizeof(salt), flags),
-                 0);
+	uint32_t flags = USER_SALT_PASSWORD | USER_TA_UNIQUE_PASSWORD;
+	CHECK_EQ(create_user(username, strlen(username), password,
+			     strlen(password), salt, sizeof(salt), flags),
+		 0);
 }
 
 /*
@@ -240,12 +240,12 @@ TEST(user, create_user_salt_ta_unique_salt)
  */
 TEST(user, create_user_salt_ta_unique_no_salt)
 {
-        char username[] = "user-salt-with-ta-uniq-no-salt";
-        char password[] = "user-salt-with-ta-uniq-no-salt";
-        uint32_t flags = USER_TA_UNIQUE_PASSWORD;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), NULL, 0, flags),
-                 0);
+	char username[] = "user-salt-with-ta-uniq-no-salt";
+	char password[] = "user-salt-with-ta-uniq-no-salt";
+	uint32_t flags = USER_TA_UNIQUE_PASSWORD;
+	CHECK_EQ(create_user(username, strlen(username), password,
+			     strlen(password), NULL, 0, flags),
+		 0);
 }
 
 /*
@@ -258,10 +258,11 @@ TEST(user, create_user_unauthenticated_measure_ta_unique)
 	char username[] = "user-unauth-measure-ta-uniq";
 	char password[] = "abc";
 	uint8_t salt[] = { 0x30, 0x31, 0x32, 0x33 };
-	uint32_t flags = USER_SALT_PASSWORD | USER_UNAUTHENTICATED_MEASURE | USER_TA_UNIQUE_PASSWORD;
-        CHECK_EQ(create_user(username, strlen(username), password,
-                             strlen(password), salt, sizeof(salt), flags),
-                 0);
+	uint32_t flags = USER_SALT_PASSWORD | USER_UNAUTHENTICATED_MEASURE |
+			 USER_TA_UNIQUE_PASSWORD;
+	CHECK_EQ(create_user(username, strlen(username), password,
+			     strlen(password), salt, sizeof(salt), flags),
+		 0);
 }
 
 /*
@@ -271,47 +272,47 @@ TEST(user, create_user_unauthenticated_measure_ta_unique)
  */
 TEST(measure, bad_parameters)
 {
-        char username[] = "user";
-        char password[] = "user";
+	char username[] = "user";
+	char password[] = "user";
 	char too_long_username[] = "012345678901234567890123456789012";
-        uint8_t reg[] = { 0x1 };
-        uint8_t data[]= { 'a', 'b', 'c' };
+	uint8_t reg[] = { 0x1 };
+	uint8_t data[]= { 'a', 'b', 'c' };
 
 	/* No data provided */
-        CHECK_NE(measure(username, strlen(username), password, strlen(password),
-                         reg, sizeof(reg), NULL, 0),
-                 0);
+	CHECK_NE(measure(username, strlen(username), password, strlen(password),
+			 reg, sizeof(reg), NULL, 0),
+		 0);
 
 	/* No data provided */
-        CHECK_NE(measure(username, strlen(username), NULL, 0, reg, sizeof(reg),
-                         data, sizeof(data)),
-                 0);
+	CHECK_NE(measure(username, strlen(username), NULL, 0, reg, sizeof(reg),
+			 data, sizeof(data)),
+		 0);
 
 	/* Password length = 0 */
-        CHECK_NE(measure(username, strlen(username), password, 0, reg,
-                         sizeof(reg), data, sizeof(data)),
-                 0);
+	CHECK_NE(measure(username, strlen(username), password, 0, reg,
+			 sizeof(reg), data, sizeof(data)),
+		 0);
 
 	/* No password provided */
-        CHECK_NE(measure(username, strlen(username), NULL, sizeof(password), reg,
-                         sizeof(reg), data, sizeof(data)),
-                 0);
+	CHECK_NE(measure(username, strlen(username), NULL, sizeof(password),
+			 reg, sizeof(reg), data, sizeof(data)),
+			 0);
 
 	/* No data provided */
-        CHECK_NE(measure(username, strlen(username), password, sizeof(password),
-                         reg, sizeof(reg), NULL, sizeof(data)),
-                 0);
+	CHECK_NE(measure(username, strlen(username), password, sizeof(password),
+			 reg, sizeof(reg), NULL, sizeof(data)),
+		 0);
 
 	/* Data size = 0 */
-        CHECK_NE(measure(username, strlen(username), password, sizeof(password),
-                         reg, sizeof(reg), data, 0),
-                 0);
+	CHECK_NE(measure(username, strlen(username), password, sizeof(password),
+			 reg, sizeof(reg), data, 0),
+		 0);
 
 	/* Data size = 0 */
-        CHECK_NE(measure(too_long_username, strlen(too_long_username), password,
-                         sizeof(password), reg, sizeof(reg), data,
-                         sizeof(data)),
-                 0);
+	CHECK_NE(measure(too_long_username, strlen(too_long_username), password,
+			 sizeof(password), reg, sizeof(reg), data,
+			 sizeof(data)),
+		 0);
 }
 
 TEST(measure, measure_normal)
@@ -339,34 +340,34 @@ TEST(measure, measure_normal)
 	 *   -> expected:
 	 * 365aa7d8f7f9402c4b9434502b4cc89ddb09fe50d7cd95b493b834c62d5a5370
 	 */
-        REQUIRE_EQ(measure(username, strlen(username), password,
-                           strlen(password), reg, sizeof(reg), data,
-                           sizeof(data)),
-                   0);
-        REQUIRE_EQ(get_measure(username, strlen(username), password,
-                               strlen(password), reg, sizeof(reg), digest),
-                   0);
-        CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
+	REQUIRE_EQ(measure(username, strlen(username), password,
+			   strlen(password), reg, sizeof(reg), data,
+			   sizeof(data)),
+		   0);
+	REQUIRE_EQ(get_measure(username, strlen(username), password,
+			       strlen(password), reg, sizeof(reg), digest),
+		   0);
+	CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
 
-        /*
+	/*
 	 * Hash(32 * '0x0' || abc || abc)
 	 *   -> expected:
 	 * 0f25de757a05fdcd69becaeb50675b3d752b78fd31929cdbc8352b5defb683a1
-	 */
-        REQUIRE_EQ(measure(username, strlen(username), password,
-                           strlen(password), reg, sizeof(reg), data,
-                           sizeof(data)),
-                   0);
-        REQUIRE_EQ(get_measure(username, strlen(username), password,
-                               strlen(password), reg, sizeof(reg), digest),
-                   0);
-        CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
+	*/
+	REQUIRE_EQ(measure(username, strlen(username), password,
+			   strlen(password), reg, sizeof(reg), data,
+			   sizeof(data)),
+		   0);
+	REQUIRE_EQ(get_measure(username, strlen(username), password,
+			       strlen(password), reg, sizeof(reg), digest),
+		   0);
+	CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
 
-        /* Try authenticated measure, with incorrect passsword */
-        CHECK_NE(measure(username, strlen(username), incorrect_password,
-                         strlen(incorrect_password), reg, sizeof(reg), data,
-                         sizeof(data)),
-                 0);
+	/* Try authenticated measure, with incorrect passsword */
+	CHECK_NE(measure(username, strlen(username), incorrect_password,
+			 strlen(incorrect_password), reg, sizeof(reg), data,
+			 sizeof(data)),
+		 0);
 }
 
 TEST(measure, measure_unauthenticated)
@@ -391,25 +392,25 @@ TEST(measure, measure_unauthenticated)
 	 * Hash(32 * '0x0' || abc)
 	 *   -> expected: 365aa7d8f7f9402c4b9434502b4cc89ddb09fe50d7cd95b493b834c62d5a5370
 	 */
-        REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg, sizeof(reg),
-                         data, sizeof(data)),
-                 0);
-        REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
-                             sizeof(reg), digest),
-                 0);
-        CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
+	REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg,
+			   sizeof(reg), data, sizeof(data)),
+		   0);
+	REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
+			       sizeof(reg), digest),
+		   0);
+	CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
 
 	/*
 	 * Hash(32 * '0x0' || abc || abc)
 	 *   -> expected: 0f25de757a05fdcd69becaeb50675b3d752b78fd31929cdbc8352b5defb683a1
-	 */
-        REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg, sizeof(reg),
-                         data, sizeof(data)),
-                 0);
-        REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
-                             sizeof(reg), digest),
-                 0);
-        CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
+	*/
+	REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg,
+			   sizeof(reg), data, sizeof(data)),
+		   0);
+	REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
+			       sizeof(reg), digest),
+		   0);
+	CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
 }
 
 /*
@@ -420,8 +421,8 @@ TEST(measure, measure_unauthenticated)
  */
 TEST(measure, measure_normal_ta_unique)
 {
-        char password[] = "user-salt-rand-with-ta-uniq";
-        char username[] = "user-salt-rand-with-ta-uniq";
+	char password[] = "user-salt-rand-with-ta-uniq";
+	char username[] = "user-salt-rand-with-ta-uniq";
 	uint8_t data[] =  { 'a', 'b', 'c' };
 	uint8_t digest[32]; /* FIXME: Use a SHA256 length define */
 	uint8_t reg[] = { 0x1 };
@@ -442,28 +443,28 @@ TEST(measure, measure_normal_ta_unique)
 	 *   -> expected:
 	 * 365aa7d8f7f9402c4b9434502b4cc89ddb09fe50d7cd95b493b834c62d5a5370
 	 */
-        REQUIRE_EQ(measure(username, strlen(username), password,
-                           strlen(password), reg, sizeof(reg), data,
-                           sizeof(data)),
-                   0);
-        REQUIRE_EQ(get_measure(username, strlen(username), password,
-                               strlen(password), reg, sizeof(reg), digest),
-                   0);
-        CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
+	REQUIRE_EQ(measure(username, strlen(username), password,
+			   strlen(password), reg, sizeof(reg), data,
+			   sizeof(data)),
+		   0);
+	REQUIRE_EQ(get_measure(username, strlen(username), password,
+			       strlen(password), reg, sizeof(reg), digest),
+		   0);
+	CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
 
-        /*
+	/*
 	 * Hash(32 * '0x0' || abc || abc)
 	 *   -> expected:
 	 * 0f25de757a05fdcd69becaeb50675b3d752b78fd31929cdbc8352b5defb683a1
-	 */
-        REQUIRE_EQ(measure(username, strlen(username), password,
-                           strlen(password), reg, sizeof(reg), data,
-                           sizeof(data)),
-                   0);
-        REQUIRE_EQ(get_measure(username, strlen(username), password,
-                               strlen(password), reg, sizeof(reg), digest),
-                   0);
-        CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
+	*/
+	REQUIRE_EQ(measure(username, strlen(username), password,
+			   strlen(password), reg, sizeof(reg), data,
+			   sizeof(data)),
+		   0);
+	REQUIRE_EQ(get_measure(username, strlen(username), password,
+			       strlen(password), reg, sizeof(reg), digest),
+		   0);
+	CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
 }
 
 TEST(measure, measure_unauthenticated_ta_unique)
@@ -488,27 +489,26 @@ TEST(measure, measure_unauthenticated_ta_unique)
 	 * Hash(32 * '0x0' || abc)
 	 *   -> expected: 365aa7d8f7f9402c4b9434502b4cc89ddb09fe50d7cd95b493b834c62d5a5370
 	 */
-        REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg, sizeof(reg),
-                         data, sizeof(data)),
-                 0);
-        REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
-                             sizeof(reg), digest),
-                 0);
-        CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
+	REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg,
+			   sizeof(reg), data, sizeof(data)),
+		   0);
+	REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
+			       sizeof(reg), digest),
+		   0);
+	CHECK_BUF_EQ(digest, expected1, sizeof(expected1));
 
 	/*
 	 * Hash(32 * '0x0' || abc || abc)
 	 *   -> expected: 0f25de757a05fdcd69becaeb50675b3d752b78fd31929cdbc8352b5defb683a1
-	 */
-        REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg, sizeof(reg),
-                         data, sizeof(data)),
-                 0);
-        REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
-                             sizeof(reg), digest),
-                 0);
-        CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
+	*/
+	REQUIRE_EQ(measure(username, strlen(username), NULL, 0, reg,
+			   sizeof(reg), data, sizeof(data)),
+		   0);
+	REQUIRE_EQ(get_measure(username, strlen(username), NULL, 0, reg,
+			       sizeof(reg), digest),
+		   0);
+	CHECK_BUF_EQ(digest, expected2, sizeof(expected2));
 }
-
 
 /*
  * Dump all existing users into the secure UART.
