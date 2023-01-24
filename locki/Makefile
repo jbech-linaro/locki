@@ -7,7 +7,19 @@ TA_CROSS_COMPILE ?= $(CROSS_COMPILE)
 # Overall targets
 ################################################################################
 .PHONY: all
-all: ta lib tests
+all: ta lib tests host
+
+################################################################################
+# Host tools
+################################################################################
+.PHONY: host
+host: lib
+	@echo "Building host tools"
+	@$(MAKE) -C host CROSS_COMPILE="$(HOST_CROSS_COMPILE)" --no-builtin-variables
+
+.PHONY: host-clean
+host-clean:
+	@$(MAKE) -C host clean
 
 ################################################################################
 # Linux user space library
@@ -41,7 +53,7 @@ tests:
 	@echo "Building Locki tests"
 	@$(MAKE) -C test CROSS_COMPILE="$(HOST_CROSS_COMPILE)" --no-builtin-variables
 
-.PHONY: lib-clean
+.PHONY: tests-clean
 tests-clean:
 	@$(MAKE) -C test clean
 
