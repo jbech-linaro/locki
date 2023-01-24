@@ -825,8 +825,7 @@ static TEE_Result add_user(uint8_t *username, uint32_t username_len,
 	DMSG("User '%s' has been added", (char *)username);
 	goto success;
 err:
-	if (user)
-		TEE_Free(user);
+	TEE_Free(user);
 success:
 	return res;
 }
