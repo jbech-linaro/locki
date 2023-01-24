@@ -6,7 +6,7 @@ OBJCOPY ?= $(CROSS_COMPILE)objcopy
 OBJDUMP ?= $(CROSS_COMPILE)objdump
 READELF ?= $(CROSS_COMPILE)readelf
 
-V			?= n
+V			?= y
 ifeq (,$(filter $(V),1 y))
 VERBOSE			:= @
 endif
@@ -28,15 +28,15 @@ BINARY := locki
 all: $(BINARY)
 
 
-OBJS := locki-tool.o
+OBJS := locki-tool.o locki-measure.o locki-user.o
 
 $(BINARY): $(OBJS)
 	@echo "  LD      $(notdir $@)"
-	$(VERBOSE)$(CC) -o $@ $< $(LDADD)
+	$(VERBOSE)$(CC) -o $@ $^ $(LDADD)
 
-.PHONY: clean
+.PHONY: locki-clean
 locki-clean:
-	rm -f $(OBJS) locki-create
+	rm -f $(OBJS) $(BINARY)
 
 %.o: %.c
 	@echo "  CC      $(notdir $<)"
