@@ -94,7 +94,6 @@ int user_main(int argc, char *argv[])
 					  NULL, 0,
 					  arg.flags);
 		}
-		debug_dump_users();
 	}
 
 	return res;

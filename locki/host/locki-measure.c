@@ -87,7 +87,6 @@ int measure_main(int argc, char *argv[])
 			      (uint8_t *)arg.reg, strlen(arg.reg),
 			      (uint8_t *)arg.data, strlen(arg.data));
 		printf("Measure: %s\n", arg.username);
-		debug_dump_users();
 	}
 
 	return res;

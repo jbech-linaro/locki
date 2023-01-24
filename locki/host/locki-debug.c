@@ -1,8 +1,11 @@
 #include <argp.h>
+#include <signal.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <locki.h>
 #include <locki-tool.h>
@@ -13,6 +16,7 @@ extern const char *argp_program_bug_address;
 static char doc[] = "'locki debug', is used for debugging.";
 static char args_doc[] = "ARG1 ARG2";
 static bool verbose;
+static bool running;
 
 static struct argp_option options[] = {
 	{ "initialize",        'i', 0, 0, "Initialize the TA" },
@@ -64,23 +68,35 @@ static struct argp argp = {
 	doc
 };
 
+static void sig_handler(int sig) {
+	running = false;
+}
+
 int debug_main(int argc, char *argv[])
 {
 	int res = -1;
 	struct arguments arg = { 0 };
 
+	signal(SIGINT, sig_handler);
 	argp_parse(&argp, argc, argv, 0, 0, &arg);
-
 	verbose = arg.verbose;
+	running = true;
 
-	if (arg.initialize)
+	if (arg.initialize) {
+		printf("Initialize the TA\n");
 		res = initialize();
-	else if (arg.terminate)
+		while(running)
+			sleep(1);
+	} else if (arg.terminate) {
+		printf("Terminate the TA\n");
 		res = terminate();
-	else if (arg.registers)
+	} else if (arg.registers) {
+		printf("Dump all registers\n");
 		res = debug_dump_registers();
-	else if (arg.users)
+	} else if (arg.users) {
+		printf("Dump all users\n");
 		res = debug_dump_users();
+	}
 
 	return res;
 }
