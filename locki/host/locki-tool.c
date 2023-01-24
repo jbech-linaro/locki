@@ -40,19 +40,36 @@ static bool verbose;
  ******************************************************************************/
 const char *argp_program_version = "Locki v0.1";
 const char *argp_program_bug_address = "<joakim.bech@linaro.org>";
-static char doc[] = "Locki docs";
+
+/*******************************************************************************
+ * Help command
+ ******************************************************************************/
+int print_help(void)
+{
+	printf("Usage: myprogram [OPTION]...\n\n");
+	printf("Options:\n");
+	printf("  user        For user creation\n");
+	printf("\n");
+
+	return 0;
+}
+
+/*******************************************************************************
+ * Subcommand: User
+ ******************************************************************************/
+static char doc[] = "'locki user', is used to create and manage users.";
 static char args_doc[] = "ARG1 ARG2";
 
-static struct argp_option options[] = {
+static struct argp_option options_user[] = {
 	{ "flags",     'f', "VALUE",     0,  "Flags to pass" },
-	{ "password",  'p', "VALUE",     0,  "Password to reset the Attester configuration" },
+	{ "password",  'p', "VALUE",     0,  "Authentication password" },
 	{ "salt",      's', "VALUE",     0,  "The salt" },
 	{ "user",      'u', "USERNAME",  0,  "The name of the user" },
 	{ "verbose",   'v', 0,           0,  "Verbose output" },
 	{ 0 }
 };
 
-struct arguments {
+struct arguments_user {
 	char *username;
 	uint8_t *salt;
 	char *password;
@@ -60,9 +77,10 @@ struct arguments {
 	bool verbose;
 };
 
-static error_t parse_opt(int key, char *arg, struct argp_state *state)
+static error_t parse_opt_user(int key, char *arg, struct argp_state *state)
 {
-	struct arguments *arguments = (struct arguments*)state->input;
+	struct arguments_user *arguments =
+		(struct arguments_user *)state->input;
 
 	switch (key) {
 	case 'f':
@@ -86,16 +104,16 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 	return 0;
 }
 
-static struct argp argp = {
-	options,
-	parse_opt,
+static struct argp argp_user = {
+	options_user,
+	parse_opt_user,
 	args_doc,
 	doc
 };
 
-int main(int argc, char *argv[])
+int user_main(int argc, char *argv[])
 {
-	struct arguments arg;
+	struct arguments_user arg;
 
 	arg.username = NULL;
 	arg.salt = NULL;
@@ -103,7 +121,8 @@ int main(int argc, char *argv[])
 	arg.flags = 0;
 	arg.verbose = false;
 
-	argp_parse(&argp, argc, argv, 0, 0, &arg);
+	argp_parse(&argp_user, argc, argv, 0, NULL, NULL);
+	argp_parse(&argp_user, argc, argv, 0, 0, &arg);
 
 	verbose = arg.verbose;
 
@@ -112,14 +131,34 @@ int main(int argc, char *argv[])
 		if (arg.salt) {
 			create_user(arg.username, strlen(arg.username),
 				    arg.password, strlen(arg.password),
-				    arg.salt, sizeof(arg.salt), arg.flags);
+				    arg.salt, sizeof(arg.salt),
+				    arg.flags);
 		} else {
 			create_user(arg.username, strlen(arg.username),
 				    arg.password, strlen(arg.password),
-				    NULL, 0, arg.flags);
+				    NULL, 0,
+				    arg.flags);
 		}
 		debug_dump_users();
 	}
 
 	return 0;
+}
+
+/*******************************************************************************
+ * Main
+ ******************************************************************************/
+int main(int argc, char *argv[])
+{
+	int res = -1;
+	if (argc > 1 && (strcmp(argv[1], "user") == 0)) {
+		res = user_main(argc, argv);
+	}
+	else if (argc > 1 && (strcmp(argv[1], "measure") == 0)) {
+		printf("TODO: add measure\n");
+	} else {
+		print_help();
+	}
+
+	return res;
 }

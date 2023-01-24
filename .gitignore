@@ -16,5 +16,6 @@ GPATH
 GRTAGS
 GSYMS
 GTAGS
+locki/host/locki
 locki/test/locki_test
 out/
