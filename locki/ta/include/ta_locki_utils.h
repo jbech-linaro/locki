@@ -21,39 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef	COMMON_H
-#define COMMON_H
+#ifndef _LOCKI_UTILS_H
+#define _LOCKI_UTILS_H
 
 #include <stdint.h>
-#include <stddef.h>
 
-#include <ta_locki.h>
+#include <tee_api_defines.h>
+#include <tee_api_types.h>
 
-#define MAX_KEY_SIZE 32
+TEE_Result get_ta_unique_key(uint8_t *key, uint8_t key_size,
+			     uint8_t *extra, uint16_t extra_size);
 
-/* FIXME: Figure out why we cannot use the defines from util.h */
-#ifndef BIT
-#define BIT(nr)	(1 << (nr))
-#endif
-#define IS_SET(x, mask) ((x & mask) == mask)
-#define IS_UNSET(x, mask) ((x & mask) == 0)
-
-/*
- * Defines flags used when creating a user.
- */
-#define USER_ADMIN			BIT(0)
-#define USER_SALT_PASSWORD		BIT(1)
-#define USER_UNAUTHENTICATED_MEASURE	BIT(2)
-#define USER_TA_UNIQUE_PASSWORD		BIT(3)
-
-struct sys_state {
-	uint32_t state;
-	uint32_t users;
-	uint32_t keys;
-};
-
-void hexdump_ascii(const uint8_t *data, size_t len);
-
-const char *taf_to_str(uint32_t cmd_id);
-
+TEE_Result get_random_nbr(uint8_t *nbr, uint32_t size);
 #endif

@@ -21,39 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef	COMMON_H
-#define COMMON_H
+#ifndef _LOCKI_USER_H
+#define _LOCKI_USER_H
 
 #include <stdint.h>
-#include <stddef.h>
+#include <sys/queue.h>
 
-#include <ta_locki.h>
+#include <tee_api_types.h>
+#include <utee_defines.h>
 
-#define MAX_KEY_SIZE 32
-
-/* FIXME: Figure out why we cannot use the defines from util.h */
-#ifndef BIT
-#define BIT(nr)	(1 << (nr))
-#endif
-#define IS_SET(x, mask) ((x & mask) == mask)
-#define IS_UNSET(x, mask) ((x & mask) == 0)
-
-/*
- * Defines flags used when creating a user.
- */
-#define USER_ADMIN			BIT(0)
-#define USER_SALT_PASSWORD		BIT(1)
-#define USER_UNAUTHENTICATED_MEASURE	BIT(2)
-#define USER_TA_UNIQUE_PASSWORD		BIT(3)
-
-struct sys_state {
-	uint32_t state;
-	uint32_t users;
-	uint32_t keys;
+struct user {
+	uint8_t name[32];
+	uint8_t name_len;
+	uint8_t password[TEE_SHA256_HASH_SIZE]; /* Run via Argon or PBKDF2? */
+	uint8_t password_len;
+	uint8_t salt[TEE_SHA256_HASH_SIZE];
+	uint8_t salt_len;
+	uint8_t flags;
+	TAILQ_ENTRY(user) entry;
 };
 
-void hexdump_ascii(const uint8_t *data, size_t len);
 
-const char *taf_to_str(uint32_t cmd_id);
+struct user* find_user(uint8_t *username, size_t username_len);
+struct user* find_and_validate_user(uint8_t *username, size_t username_len,
+				    uint8_t *password, size_t password_len);
+TEE_Result create_user(uint8_t *username, uint32_t username_len,
+		       uint8_t *password, uint32_t password_len,
+		       uint8_t *salt, uint32_t salt_len,
+		       uint32_t flags);
+uint32_t nbr_of_users(void);
 
 #endif

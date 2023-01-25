@@ -21,39 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef	COMMON_H
-#define COMMON_H
+#ifndef _LOCKI_CRYPTO_H
+#define _LOCKI_CRYPTO_H
 
 #include <stdint.h>
-#include <stddef.h>
 
-#include <ta_locki.h>
+#include <tee_api_defines.h>
+#include <tee_api_types.h>
 
-#define MAX_KEY_SIZE 32
-
-/* FIXME: Figure out why we cannot use the defines from util.h */
-#ifndef BIT
-#define BIT(nr)	(1 << (nr))
-#endif
-#define IS_SET(x, mask) ((x & mask) == mask)
-#define IS_UNSET(x, mask) ((x & mask) == 0)
-
-/*
- * Defines flags used when creating a user.
- */
-#define USER_ADMIN			BIT(0)
-#define USER_SALT_PASSWORD		BIT(1)
-#define USER_UNAUTHENTICATED_MEASURE	BIT(2)
-#define USER_TA_UNIQUE_PASSWORD		BIT(3)
-
-struct sys_state {
-	uint32_t state;
-	uint32_t users;
-	uint32_t keys;
+struct crypto_context {
+	TEE_OperationHandle handle;
 };
 
-void hexdump_ascii(const uint8_t *data, size_t len);
 
-const char *taf_to_str(uint32_t cmd_id);
+void free_crypto_context(struct crypto_context *ctx);
+TEE_Result sha256_init(struct crypto_context *ctx);
+
+TEE_Result sha256_update(struct crypto_context *ctx,
+			 const uint8_t *in, const size_t inlen);
+
+TEE_Result sha256_final(struct crypto_context *ctx,
+			const uint8_t *in, const size_t inlen,
+			uint8_t *digest);
+
+TEE_Result sha256(const uint8_t *in, const size_t inlen, uint8_t *digest);
+
+TEE_Result hmac_sha256(const uint8_t *key, const size_t keylen,
+		       const uint8_t *in, const size_t inlen,
+		       uint8_t *out, uint32_t *outlen);
 
 #endif

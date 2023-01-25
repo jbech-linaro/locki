@@ -21,39 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef	COMMON_H
-#define COMMON_H
+#ifndef _LOCKI_MEASURE_H
+#define _LOCKI_MEASURE_H
 
 #include <stdint.h>
-#include <stddef.h>
+#include <sys/queue.h>
 
-#include <ta_locki.h>
+#include <tee_api_types.h>
 
-#define MAX_KEY_SIZE 32
+#include <utee_defines.h>
 
-/* FIXME: Figure out why we cannot use the defines from util.h */
-#ifndef BIT
-#define BIT(nr)	(1 << (nr))
-#endif
-#define IS_SET(x, mask) ((x & mask) == mask)
-#define IS_UNSET(x, mask) ((x & mask) == 0)
-
-/*
- * Defines flags used when creating a user.
- */
-#define USER_ADMIN			BIT(0)
-#define USER_SALT_PASSWORD		BIT(1)
-#define USER_UNAUTHENTICATED_MEASURE	BIT(2)
-#define USER_TA_UNIQUE_PASSWORD		BIT(3)
-
-struct sys_state {
-	uint32_t state;
-	uint32_t users;
-	uint32_t keys;
+struct reg_element {
+	uint8_t id[TEE_SHA256_HASH_SIZE];
+	uint32_t len;
+	uint8_t val[TEE_SHA256_HASH_SIZE];
+	TAILQ_ENTRY(reg_element) entry;
 };
 
-void hexdump_ascii(const uint8_t *data, size_t len);
+TEE_Result extend_register(struct reg_element *re, uint8_t *data,
+			   size_t data_size);
 
-const char *taf_to_str(uint32_t cmd_id);
+struct reg_element* find_reg_element(uint8_t *id);
+
+TEE_Result measure(uint8_t *username, size_t username_len,
+		   uint8_t *password, size_t password_len,
+		   uint8_t *reg, size_t reg_len,
+		   uint8_t *data, size_t data_size);
+
+TEE_Result get_measure(uint8_t *username, size_t username_len,
+		       uint8_t *password __maybe_unused,
+		       size_t password_len __maybe_unused,
+		       uint8_t *reg, size_t reg_len,
+		       uint8_t *digest, uint32_t *digest_size);
 
 #endif
