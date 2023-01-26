@@ -3,6 +3,7 @@ global-incdirs-y += ../common
 srcs-y += ta_locki.c
 srcs-y += ta_locki_crypto.c
 srcs-y += ta_locki_debug.c
+srcs-y += ta_locki_keys.c
 srcs-y += ta_locki_measure.c
 srcs-y += ta_locki_user.c
 srcs-y += ta_locki_utils.c

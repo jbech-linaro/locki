@@ -32,9 +32,10 @@
 #include <utee_defines.h>
 
 #include <common.h>
+#include <ta_locki.h>
 #include <ta_locki_crypto.h>
 #include <ta_locki_debug.h>
-#include <ta_locki.h>
+#include <ta_locki_keys.h>
 #include <ta_locki_measure.h>
 #include <ta_locki_user.h>
 #include <ta_locki_utils.h>
@@ -45,6 +46,7 @@ static struct sys_state sys_state;
 
 extern TAILQ_HEAD(reg_list, reg_element) reg_list;
 extern TAILQ_HEAD(user_list, user) user_list;
+extern TAILQ_HEAD(key_list, key) key_list;
 
 enum system_state {
 	STATE_UNINITIALIZED = 0,
@@ -136,30 +138,6 @@ void TA_CloseSessionEntryPoint(void __maybe_unused *sess_ctx)
 /*******************************************************************************
  * TA core functionality
  ******************************************************************************/
-static void add_key(const char *key, const uint32_t *key_size,
-		    const char *identifier, const uint32_t *identifier_size)
-{
-	DMSG("Got identifier: '%s' (%u)", identifier, *identifier_size);
-	DMSG("Got identifier: '%s' (%u)", key, *key_size);
-}
-
-static TEE_Result create_key(uint8_t *key, uint32_t *key_size)
-{
-	TEE_Result res = TEE_ERROR_GENERIC;
-
-	if (!key || !key_size)
-		return TEE_ERROR_BAD_PARAMETERS;
-
-	if (*key_size > MAX_KEY_SIZE )
-		return TEE_ERROR_SHORT_BUFFER;
-
-	res = get_random_nbr(key, *key_size);
-	DMSG("Created key:");
-	hexdump_ascii((uint8_t *)key, *key_size);
-
-	return res;
-}
-
 static TEE_Result reset(const char *password, uint32_t len)
 {
 	(void)password;
