@@ -11,7 +11,7 @@ ifeq (,$(filter $(V),1 y))
 VERBOSE			:= @
 endif
 
-CFLAGS += -Wall
+CFLAGS += -Wall -fno-stack-protector
 CFLAGS += -I../ta/include \
 	  -I../lib/include \
 	  -I$(TEEC_EXPORT)/include \

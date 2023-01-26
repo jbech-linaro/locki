@@ -404,7 +404,8 @@ int get_measure(char *username, size_t username_len,
 		uint8_t *reg, size_t reg_len, uint8_t *digest)
 {
 	int res = ERROR;
-	if (!username || username_len == 0 || !digest)
+	if (!username || username_len == 0 ||
+	    !reg || reg_len == 0 || !digest)
 		return res;
 
 	res = open_session();
@@ -427,7 +428,6 @@ int get_measure(char *username, size_t username_len,
 		goto err;
 err:
 	close_session();
-
 	return res;
 }
 

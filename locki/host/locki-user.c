@@ -39,7 +39,7 @@ static char args_doc[] = "ARG1 ARG2";
 static bool verbose;
 
 static struct argp_option options[] = {
-	{ "flags",     'f', "VALUE",     0,  "Flags to pass" },
+	{ "flags",     'f', "VALUE",     0,  "Flags to pass, as 32-bit hex string (ffddccbb)" },
 	{ "password",  'p', "VALUE",     0,  "Authentication password" },
 	{ "salt",      's', "VALUE",     0,  "The salt" },
 	{ "user",      'u', "USERNAME",  0,  "The name of the user" },

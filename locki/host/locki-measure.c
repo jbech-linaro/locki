@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "sys/user.h"
 #include <argp.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -39,6 +40,7 @@ static bool verbose;
 
 static struct argp_option options[] = {
 	{ "data",      'd', "DATA",      0,  "Data to measure" },
+	{ "get",       'g', 0,           0,  "Read out a measured value" },
 	{ "password",  'p', "VALUE",     0,  "Authentication password" },
 	{ "reg",       'r', "ID",        0,  "Register ID" },
 	{ "user",      'u', "USERNAME",  0,  "The name of the user" },
@@ -51,6 +53,7 @@ struct arguments {
 	char *password;
 	char *reg;
 	char *data;
+	bool get;
 	bool verbose;
 };
 
@@ -62,6 +65,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 	switch (key) {
 	case 'd':
 		arguments->data = arg;
+		break;
+	case 'g':
+		arguments->get = true;
 		break;
 	case 'p':
 		arguments->password = arg;
@@ -88,29 +94,77 @@ static struct argp argp = {
 	doc
 };
 
+void print_digest(uint8_t *data, size_t len)
+{
+	size_t i = 0;
+	for (i = 0; i < len; i++)
+		printf("%02X", (char)data[i]);
+	printf("\n");
+}
+
 int measure_main(int argc, char *argv[])
 {
 	int res = -1;
 	struct arguments arg;
+	uint8_t digest[32] = { 0 };
 
 	arg.username = NULL;
 	arg.password = NULL;
 	arg.reg = NULL;
 	arg.data = NULL;
+	arg.get = false;
 	arg.verbose = false;
 
 	argp_parse(&argp, argc, argv, 0, 0, &arg);
 
 	verbose = arg.verbose;
 
+	if (arg.username) {
+		/* Getting a measurement */
+		if (arg.get && arg.reg) {
+			if (arg.password) {
+				/* Authenticated */
+				printf("TODO: add requirement to authentic to get a measurement.\n");
+				printf("      Running this is an un-authenticated for now.\n");
+			}
 
-	if (arg.username && arg.password) {
-		res = measure(arg.username, strlen(arg.username),
-			      NULL, 0,
-			      (uint8_t *)arg.reg, strlen(arg.reg),
-			      (uint8_t *)arg.data, strlen(arg.data));
-		printf("Measure: %s\n", arg.username);
+			/* Unauthenticated */
+			printf("Get un-authenticated measure\n");
+			res = get_measure(arg.username, strlen(arg.username),
+					  NULL, 0,
+					  (uint8_t *)arg.reg, strlen(arg.reg),
+					  digest);
+			if (res)
+				goto err;
+
+			print_digest(digest, sizeof(digest));
+			goto err;
+		}
+
+		/* Adding a measurement */
+		if (arg.reg && arg.data)
+		{
+			if (arg.password) {
+				printf("Do authenticated measure\n");
+				res = measure(arg.username, strlen(arg.username),
+					      arg.password, strlen(arg.password),
+					      (uint8_t *)arg.reg, strlen(arg.reg),
+					      (uint8_t *)arg.data, strlen(arg.data));
+			} else {
+				printf("Do un-authenticated measure\n");
+				res = measure(arg.username, strlen(arg.username),
+					      NULL, 0,
+					      (uint8_t *)arg.reg, strlen(arg.reg),
+					      (uint8_t *)arg.data, strlen(arg.data));
+			}
+			if (res)
+				goto err;
+
+			printf("Measured user: %s register: %s\n", arg.username, arg.reg);
+		}
 	}
-
+err:
+	if (res)
+		printf("Failed running the command (%d)\n", res);
 	return res;
 }

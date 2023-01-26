@@ -43,6 +43,7 @@ void dump_user(struct user *u)
 {
 	DMSG("<<<<<<< %s >>>>>>>", u->name);
 	DMSG("  password:");
+	DMSG("  flags: 0x%x", u->flags);
 	hexdump_ascii(u->password, u->password_len);
 	if (IS_SET(u->flags, USER_SALT_PASSWORD)) {
 		DMSG("  salt:");

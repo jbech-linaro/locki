@@ -37,7 +37,7 @@ struct user {
 	uint8_t password_len;
 	uint8_t salt[TEE_SHA256_HASH_SIZE];
 	uint8_t salt_len;
-	uint8_t flags;
+	uint32_t flags;
 	TAILQ_ENTRY(user) entry;
 };
 
