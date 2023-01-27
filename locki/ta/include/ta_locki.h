@@ -28,17 +28,18 @@
 	{ 0xf13982ac, 0x0ef8, 0x46a6, { 0xb1, 0x2c, 0xea, 0x79, 0x15, 0x4c, 0x30, 0xe2 } }
 
 /* The function IDs implemented in this Trusted Application */
-#define TA_LOCKI_CMD_ADD_KEY	0
-#define TA_LOCKI_CMD_CREATE_KEY	1
-#define TA_LOCKI_CMD_RESET	2
-#define TA_LOCKI_CMD_CONFIGURE	3
-#define TA_LOCKI_CMD_STATUS	4
-#define TA_LOCKI_CMD_MEASURE	5
-#define TA_LOCKI_CMD_GET_MEASURE	6
+#define TA_LOCKI_CMD_ADD_KEY			0
+#define TA_LOCKI_CMD_GENERATE_KEY		1
+#define TA_LOCKI_CMD_RESET			2
+#define TA_LOCKI_CMD_CONFIGURE			3
+#define TA_LOCKI_CMD_STATUS			4
+#define TA_LOCKI_CMD_MEASURE			5
+#define TA_LOCKI_CMD_GET_MEASURE		6
 
-#define TA_LOCKI_CMD_CREATE_USER  10
+#define TA_LOCKI_CMD_CREATE_USER		10
 
-#define TA_LOCKI_CMD_DEBUG_DUMP_USERS	100
+/* Debug commands */
+#define TA_LOCKI_CMD_DEBUG_DUMP_USERS		100
 #define TA_LOCKI_CMD_DEBUG_DUMP_REGISTERS	101
 
 #endif

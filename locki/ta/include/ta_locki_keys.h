@@ -31,15 +31,18 @@
 #include "utee_defines.h"
 
 struct key {
-	uint32_t handle;
-	uint32_t type;
+	uint8_t id[TEE_SHA256_HASH_SIZE];
 	uint8_t value[TEE_SHA256_HASH_SIZE];
+	uint32_t handle;
+	uint32_t attributes;
 	TAILQ_ENTRY(key) entry;
 };
 
 void add_key(const char *key, const uint32_t *key_size,
 	     const char *identifier, const uint32_t *identifier_size);
 
-TEE_Result create_key(uint8_t *key, uint32_t *key_size);
-
+TEE_Result generate_key(uint8_t *username, size_t username_len,
+			uint8_t *password, size_t password_len,
+			uint8_t *reg, size_t reg_len,
+			uint32_t key_handle, uint32_t attributes);
 #endif

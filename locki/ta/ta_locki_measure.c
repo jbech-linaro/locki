@@ -73,11 +73,10 @@ struct reg_element* find_reg_element(uint8_t *id)
 	return re;
 }
 
-
-static TEE_Result create_reg_id(struct user *user, uint8_t *reg, size_t reg_len,
-				uint8_t *digest)
+TEE_Result create_reg_id(struct user *user, uint8_t *reg, size_t reg_len,
+			 uint8_t *digest)
 {
-	TEE_Result res = TEE_ERROR_BAD_PARAMETERS;
+        TEE_Result res = TEE_ERROR_BAD_PARAMETERS;
 	struct crypto_context ctx = { 0 };
 
 	if (!user || !reg || reg_len == 0)
@@ -92,11 +91,8 @@ static TEE_Result create_reg_id(struct user *user, uint8_t *reg, size_t reg_len,
 		goto err;
 
 	res = sha256_final(&ctx, reg, reg_len, digest);
-	if (res != TEE_SUCCESS)
-		goto err;
 err:
 	free_crypto_context(&ctx);
-	return res;
 
 	return res;
 }

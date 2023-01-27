@@ -46,6 +46,9 @@
 #define USER_UNAUTHENTICATED_MEASURE	BIT(2)
 #define USER_TA_UNIQUE_PASSWORD		BIT(3)
 
+#define USER_ALLOW_WRAPPED_KEY_EXPORT	BIT(4)
+#define USER_ALLOW_UNAUTH_KEY_EXPORT	BIT(5)
+
 struct sys_state {
 	uint32_t state;
 	uint32_t users;

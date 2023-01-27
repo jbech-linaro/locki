@@ -31,6 +31,8 @@
 
 #include <utee_defines.h>
 
+#include <ta_locki_user.h>
+
 struct reg_element {
 	uint8_t id[TEE_SHA256_HASH_SIZE];
 	uint32_t len;
@@ -43,6 +45,9 @@ TEE_Result extend_register(struct reg_element *re, uint8_t *data,
 
 struct reg_element* find_reg_element(uint8_t *id);
 
+TEE_Result create_reg_id(struct user *user, uint8_t *reg, size_t reg_len,
+			 uint8_t *digest);
+
 TEE_Result measure(uint8_t *username, size_t username_len,
 		   uint8_t *password, size_t password_len,
 		   uint8_t *reg, size_t reg_len,
@@ -53,5 +58,4 @@ TEE_Result get_measure(uint8_t *username, size_t username_len,
 		       size_t password_len __maybe_unused,
 		       uint8_t *reg, size_t reg_len,
 		       uint8_t *digest, uint32_t *digest_size);
-
 #endif

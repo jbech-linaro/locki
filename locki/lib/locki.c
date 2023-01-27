@@ -256,39 +256,39 @@ err:
 }
 
 /*
- * FIXME: Add algo and also add an identity
+ * This function generates a matching a certain user and the register. Note that
+ * the key generated will be tied to the value of the register element. I.e.,
+ * this will work similar to how sealing is working in a TPM chip.
  */
-int create_key(void)
+int generate_key(char *username, size_t username_len,
+		 char *password, size_t password_len,
+		 uint8_t *reg, size_t reg_len,
+		 uint32_t key_handle, uint32_t attributes)
 {
 	int res = ERROR;
-	size_t key_size = MAX_KEY_SIZE;
-	uint32_t key[MAX_KEY_SIZE] = { 0 };
 
-	res = initialize();
-	if (res) {
-		/*
-		 * If TEEC_InitializeContext fails, the program will quit and
-		 * we won't end up here, so it's safe and we have to jump to
-		 * the finalize here.
-		 */
-		goto err;
-	}
+	if (!username || username_len == 0 ||
+	    !password || password_len == 0 ||
+	    !reg || reg_len == 0)
+		return res;
 
-	td.operation.params[0].tmpref.buffer = key;
-	td.operation.params[0].tmpref.size = key_size;
-	td.operation.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INOUT,
-						   TEEC_NONE, TEEC_NONE,
-						   TEEC_NONE);
-	res = teec_invoke(TA_LOCKI_CMD_CREATE_KEY);
-	if (res != 0)
+	res = open_session();
+	if (res)
 		goto err;
 
-	key_size = td.operation.params[0].tmpref.size;
-	res = store_key_to_file("key.bin", (uint8_t *)key, key_size);
-	if (res != 0)
-		goto err;
-
-	hexdump_ascii((uint8_t *)key, key_size);
+	td.operation.params[0].tmpref.buffer = username;
+	td.operation.params[0].tmpref.size = username_len;
+	td.operation.params[1].tmpref.buffer = password;
+	td.operation.params[1].tmpref.size = password_len;
+	td.operation.params[2].tmpref.buffer = reg;
+	td.operation.params[2].tmpref.size = reg_len;
+	td.operation.params[3].value.a = key_handle;
+	td.operation.params[3].value.b = attributes;
+	td.operation.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT,
+						   TEEC_MEMREF_TEMP_INPUT,
+						   TEEC_MEMREF_TEMP_INPUT,
+						   TEEC_VALUE_INPUT);
+	res = teec_invoke(TA_LOCKI_CMD_GENERATE_KEY);
 err:
 	close_session();
 

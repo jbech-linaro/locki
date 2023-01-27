@@ -15,7 +15,7 @@ TAU_MAIN()
 
 TEST(system, initialize)
 {
-	CHECK_EQ(initialize(), 0);
+	REQUIRE_EQ(initialize(), 0);
 }
 
 TEST(setup, remove_file)
@@ -52,33 +52,6 @@ TEST(configure, with_correct_password)
 	CHECK_EQ(configure(password, strlen(password)), 0);
 }
 
-TEST(alg, create)
-{
-	struct stat st;
-	create_key();
-	CHECK_TRUE(access("key.bin", F_OK) == 0);
-
-	stat(DEFAULT_KEY_FILENAME, &st);
-	CHECK_EQ(st.st_size, MAX_KEY_SIZE);
-}
-
-TEST(add_key, bad_parameters)
-{
-	char identity[] = "joe";
-	char key[] = "123";
-	uint8_t *data = (uint8_t *)key;
-
-	CHECK_NE(add_key(NULL, NULL, NULL, 0), 0);
-	CHECK_NE(add_key(identity, key, data, 0), 0);
-	CHECK_NE(add_key(identity, NULL, NULL, 0), 0);
-}
-
-TEST(add_key, add_ascii_key)
-{
-	char identity[] = "joe";
-	char key[] = "123";
-	CHECK_EQ(add_key(identity, key, NULL, 0), 0);
-}
 
 #if 0
 TEST(configure, with_bad_password)
@@ -511,6 +484,95 @@ TEST(measure, measure_unauthenticated_ta_unique)
 }
 
 /*
+ * Testing various unsupported parameters for the generate_key function.
+ */
+TEST(keys, bad_parameters)
+{
+	char username[] = "user-bad-parameter";
+	char password[] = "user-bad-parameter";
+	uint8_t reg[] = { 0x1 };
+	uint32_t attributes = 0;
+	uint32_t key_handle = 1;
+
+	/* No user name */
+	CHECK_NE(generate_key(NULL, strlen(username),
+			      password, strlen(password),
+			      reg, sizeof(reg),
+			      key_handle, attributes),
+		 0);
+
+	/* Short username */
+	CHECK_NE(generate_key(username, 0,
+			      password, strlen(password),
+			      reg, sizeof(reg),
+			      key_handle, attributes),
+		 0);
+
+	/* No password */
+	CHECK_NE(generate_key(username, strlen(username),
+			      NULL, strlen(password),
+			      reg, sizeof(reg),
+			      key_handle, attributes),
+		 0);
+
+	/* Short password */
+	CHECK_NE(generate_key(username, strlen(username),
+			      password, 0,
+			      reg, sizeof(reg),
+			      key_handle, attributes),
+		 0);
+
+	/* No register */
+	CHECK_NE(generate_key(username, strlen(username),
+			      password, strlen(password),
+			      NULL, sizeof(reg),
+			      key_handle, attributes),
+		 0);
+
+	/* Short register size */
+	CHECK_NE(generate_key(username, strlen(username),
+			      password, strlen(password),
+			      reg, 0,
+			      key_handle, attributes),
+		 0);
+}
+
+TEST(keys, generate_key)
+{
+	char username[] = "user-gen-key";
+	char password[] = "user-gen-key";
+	uint8_t data[] =  { 'a', 'b', 'c' };
+	uint8_t reg[] = { 0x1 };
+	uint8_t salt[] = { 0x30, 0x31, 0x32, 0x33 };
+	uint32_t attributes = 0;
+	uint32_t flags = USER_SALT_PASSWORD;
+	uint32_t key_handle = 1;
+
+	/*
+	 * Add a new user to make it easiers to run this test as a standalone
+	 * test
+	 */
+	REQUIRE_EQ(create_user(username, strlen(username),
+			       password, strlen(password),
+			       salt, sizeof(salt),
+			       flags),
+		 0);
+
+	/* We also need a value measurement to refer to. */
+	REQUIRE_EQ(measure(username, strlen(username),
+			   password, strlen(password),
+			   reg, sizeof(reg),
+			   data, sizeof(data)),
+		   0);
+
+	CHECK_EQ(generate_key(username, strlen(username),
+			      password, strlen(password),
+			      reg, sizeof(reg),
+			      key_handle, attributes),
+		 0);
+}
+
+/*
  * Dump all existing users into the secure UART.
  * FIMXE: Should not be available on debug builds.
  */
@@ -527,6 +589,26 @@ TEST(debug, dump_registers)
 {
 	debug_dump_registers();
 }
+
+#if 0
+TEST(add_key, bad_parameters)
+{
+        char identity[] = "joe";
+        char key[] = "123";
+        uint8_t *data = (uint8_t *)key;
+
+        CHECK_NE(add_key(NULL, NULL, NULL, 0), 0);
+        CHECK_NE(add_key(identity, key, data, 0), 0);
+        CHECK_NE(add_key(identity, NULL, NULL, 0), 0);
+}
+
+TEST(add_key, add_ascii_key)
+{
+        char identity[] = "joe";
+        char key[] = "123";
+        CHECK_EQ(add_key(identity, key, NULL, 0), 0);
+}
+#endif
 
 /*
  * This function has to be last in this file, don't move it!

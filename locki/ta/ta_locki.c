@@ -84,6 +84,8 @@ void TA_DestroyEntryPoint(void)
 	struct user *user_next = NULL;
 	struct reg_element *reg_current = NULL;
 	struct reg_element *reg_next = NULL;
+	struct key *key_current = NULL;
+	struct key *key_next = NULL;
 
 	DMSG("Releasing user resources");
 	TAILQ_FOREACH_SAFE(user_current, &user_list, entry, user_next) {
@@ -100,6 +102,15 @@ void TA_DestroyEntryPoint(void)
 		TEE_Free(reg_current);
 		reg_current = NULL;
 	}
+
+	DMSG("Releasing key resources");
+	TAILQ_FOREACH_SAFE(key_current, &key_list, entry, key_next) {
+		TAILQ_REMOVE(&key_list, key_current, entry);
+		memset(key_current, 0, sizeof(struct reg_element));
+		TEE_Free(key_current);
+		key_current = NULL;
+	}
+
 	/* FIXME: Save to disk if needed */
 	DMSG("Locki TA instance destroyed");
 }
@@ -194,20 +205,29 @@ static TEE_Result ta_add_key(uint32_t param_types, TEE_Param params[4])
 	return TEE_SUCCESS;
 }
 
-static TEE_Result ta_create_key(uint32_t param_types, TEE_Param params[4])
+static TEE_Result ta_generate_key(uint32_t param_types, TEE_Param params[4])
 {
-	uint8_t *key = params[0].memref.buffer;
-	uint32_t *key_size = &params[0].memref.size;
-	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INOUT,
-						   TEE_PARAM_TYPE_NONE,
-						   TEE_PARAM_TYPE_NONE,
-						   TEE_PARAM_TYPE_NONE);
-	DMSG("[[[ TA_LOCKI_CMD_CREATE_KEY ]]]");
+	uint8_t *username = params[0].memref.buffer;
+	size_t username_len = params[0].memref.size;
+	uint8_t *password = params[1].memref.buffer;
+	uint32_t password_len = params[1].memref.size;
+	uint8_t *reg = params[2].memref.buffer;
+	uint32_t reg_len = params[2].memref.size; /* FIXME: Check type / size */
+	uint32_t key_handle = params[3].value.a;
+	uint32_t attributes = params[3].value.b;
+	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
+						   TEE_PARAM_TYPE_MEMREF_INPUT,
+						   TEE_PARAM_TYPE_MEMREF_INPUT,
+						   TEE_PARAM_TYPE_VALUE_INPUT);
+	DMSG("[[[ TA_LOCKI_CMD_GENERATE_KEY ]]]");
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	return create_key(key, key_size);
+	return generate_key(username, username_len,
+			    password, password_len,
+			    reg, reg_len,
+			    key_handle, attributes);
 }
 
 static TEE_Result ta_reset(uint32_t param_types, TEE_Param params[4])
@@ -357,8 +377,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void __maybe_unused *sess_ctx,
 	switch (cmd_id) {
 	case TA_LOCKI_CMD_ADD_KEY:
 		return ta_add_key(param_types, params);
-	case TA_LOCKI_CMD_CREATE_KEY:
-		return ta_create_key(param_types, params);
+	case TA_LOCKI_CMD_GENERATE_KEY:
+		return ta_generate_key(param_types, params);
 	case TA_LOCKI_CMD_RESET:
 		return ta_reset(param_types, params);
 	case TA_LOCKI_CMD_CONFIGURE:
