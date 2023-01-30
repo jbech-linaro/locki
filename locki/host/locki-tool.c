@@ -35,6 +35,7 @@ int print_help(void)
 {
 	printf("Usage: myprogram [OPTION]...\n\n");
 	printf("Options:\n");
+	printf("  key         For key generation\n");
 	printf("  user        For user administration\n");
 	printf("  measure     To make measurements\n");
 	printf("\n");
@@ -55,6 +56,8 @@ int main(int argc, char *argv[])
 		res = user_main(argc-1, &argv[1]);
 	else if (argc > 1 && (!strcmp(argv[1], "measure")))
 		res = measure_main(argc-1, &argv[1]);
+	else if (argc > 1 && (!strcmp(argv[1], "key")))
+		res = key_main(argc-1, &argv[1]);
 	else if (argc > 1 && (!strcmp(argv[1], "debug")))
 		res = debug_main(argc-1, &argv[1]);
 	else
