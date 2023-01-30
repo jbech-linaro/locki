@@ -62,6 +62,24 @@ err:
 	return res;
 }
 
+static bool key_exist(struct key *key)
+{
+	struct key *current = NULL;
+
+	TAILQ_FOREACH(current, &key_list, entry) {
+		if (TEE_MemCompare(current->id, key->id, sizeof(key->id)) == 0) {
+			/*
+			 * Note, the print below doesn't uniquely identity a key. The
+			 * key->id should be printed to fully identify it.
+			 */
+			DMSG("Found key: %u", key->handle);
+			return true;
+		}
+	}
+	DMSG("Didn't find an existing key");
+	return false;
+}
+
 void add_key(const char *key, const uint32_t *key_size,
 	     const char *identifier, const uint32_t *identifier_size)
 {
@@ -125,7 +143,15 @@ TEE_Result generate_key(uint8_t *username, size_t username_len,
 	DMSG("Created key:");
 	hexdump_ascii(key->value, sizeof(key->value));
 
+	/* Only add the key, if it is a new key */
+	if (key_exist(key)) {
+		DMSG("Key not created: key handle: %u for %s already exist",
+		     key->handle, username);
+		goto err;
+	}
+
 	TAILQ_INSERT_TAIL(&key_list, key, entry);
+	DMSG("Successfully created and stored a new key");
 err:
 	if (res != TEE_SUCCESS)
 		TEE_Free(key);
