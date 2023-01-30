@@ -367,6 +367,14 @@ static TEE_Result ta_debug_dump_registers(uint32_t param_types __maybe_unused,
 	return TEE_SUCCESS;
 }
 
+static TEE_Result ta_debug_dump_keys(uint32_t param_types __maybe_unused,
+				     TEE_Param params[4] __maybe_unused)
+{
+	DMSG("[[[ TA_LOCKI_CMD_DEBUG_DUMP_KEYS ]]]");
+	dump_key_list();
+	return TEE_SUCCESS;
+}
+
 /*******************************************************************************
  * Main entrance point for the various TA functions.
  ******************************************************************************/
@@ -396,6 +404,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void __maybe_unused *sess_ctx,
 		return ta_debug_dump_users(param_types, params);
 	case TA_LOCKI_CMD_DEBUG_DUMP_REGISTERS:
 		return ta_debug_dump_registers(param_types, params);
+	case TA_LOCKI_CMD_DEBUG_DUMP_KEYS:
+		return ta_debug_dump_keys(param_types, params);
 	default:
 		return TEE_ERROR_BAD_PARAMETERS;
 	}

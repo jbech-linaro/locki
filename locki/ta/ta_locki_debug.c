@@ -28,10 +28,12 @@
 
 #include <common.h>
 #include <ta_locki_debug.h>
+#include <ta_locki_keys.h>
 #include <ta_locki_measure.h>
 
 #define DEBUG
 
+extern TAILQ_HEAD(key_list, key) key_list;
 extern TAILQ_HEAD(reg_list, reg_element) reg_list;
 extern TAILQ_HEAD(user_list, user) user_list;
 
@@ -96,4 +98,33 @@ void dump_reg_list(void)
 }
 #else
 void dump_reg_list(void) {}
+#endif
+
+#ifdef DEBUG
+void dump_key(struct key *key)
+{
+	DMSG("id:");
+	hexdump_ascii(key->id, sizeof(key->id));
+	DMSG("value");
+	hexdump_ascii(key->value, sizeof(key->value));
+	DMSG("key handle: 0x%08x", key->handle);
+	DMSG("attributes: 0x%08x", key->attributes);
+}
+#else
+void dump_key(struct key *key) {]
+#endif
+
+#ifdef DEBUG
+void dump_key_list(void)
+{
+	struct key *key = NULL;
+	size_t i = 0;
+	TAILQ_FOREACH(key, &key_list, entry) {
+		dump_key(key);
+		i++;
+	}
+	DMSG("In total there are %lu keys(s)", i);
+}
+#else
+void dump_key_list(void) {}
 #endif

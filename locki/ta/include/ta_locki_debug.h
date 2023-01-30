@@ -24,6 +24,7 @@
 #ifndef _LOCKI_DEBUG_H
 #define _LOCKI_DEBUG_H
 
+#include <ta_locki_keys.h>
 #include <ta_locki_measure.h>
 #include <ta_locki_user.h>
 
@@ -31,5 +32,7 @@ void dump_user(struct user *u);
 void dump_user_list(void);
 void dump_register(struct reg_element *re);
 void dump_reg_list(void);
+void dump_key(struct key *key);
+void dump_key_list(void);
 
 #endif

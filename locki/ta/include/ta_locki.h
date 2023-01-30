@@ -41,5 +41,6 @@
 /* Debug commands */
 #define TA_LOCKI_CMD_DEBUG_DUMP_USERS		100
 #define TA_LOCKI_CMD_DEBUG_DUMP_REGISTERS	101
+#define TA_LOCKI_CMD_DEBUG_DUMP_KEYS		102
 
 #endif

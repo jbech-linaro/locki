@@ -44,6 +44,7 @@ static bool running;
 static struct argp_option options[] = {
 	{ "initialize",        'i', 0, 0, "Initialize the TA" },
 	{ "terminate",         't', 0, 0, "Terminate the TA" },
+	{ "list-keys",         'k', 0, 0, "Lists all keys" },
 	{ "list-users",        'u', 0, 0, "Lists all users" },
 	{ "list-registers",    'r', 0, 0, "Lists all registers" },
 	{ "verbose",           'v', 0, 0, "Verbose output" },
@@ -55,6 +56,7 @@ struct arguments {
 	bool registers;
 	bool terminate;
 	bool users;
+	bool keys;
 	bool verbose;
 };
 
@@ -65,6 +67,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 	switch (key) {
 	case 'i':
 		arguments->initialize = true;
+		break;
+	case 'k':
+		arguments->keys = true;
 		break;
 	case 'r':
 		arguments->registers = true;
@@ -119,6 +124,9 @@ int debug_main(int argc, char *argv[])
 	} else if (arg.users) {
 		printf("Dump all users\n");
 		res = debug_dump_users();
+	} else if (arg.keys) {
+		printf("Dump all keys\n");
+		res = debug_dump_keys();
 	}
 
 	return res;

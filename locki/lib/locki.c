@@ -506,3 +506,21 @@ err:
 
 	return res;
 }
+
+int debug_dump_keys(void)
+{
+	int res = ERROR;
+
+	res = open_session();
+	if (res)
+		goto err;
+
+	td.operation.paramTypes = 0;
+	res = teec_invoke(TA_LOCKI_CMD_DEBUG_DUMP_KEYS);
+	if (res)
+		goto err;
+err:
+	close_session();
+
+	return res;
+}

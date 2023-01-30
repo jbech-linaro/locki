@@ -49,5 +49,6 @@ int terminate(void);
 /* Debug functions */
 int debug_dump_users(void);
 int debug_dump_registers(void);
+int debug_dump_keys(void);
 
 #endif
