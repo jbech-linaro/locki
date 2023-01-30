@@ -147,6 +147,7 @@ TEE_Result generate_key(uint8_t *username, size_t username_len,
 	if (key_exist(key)) {
 		DMSG("Key not created: key handle: %u for %s already exist",
 		     key->handle, username);
+		res = TEE_ERROR_GENERIC;
 		goto err;
 	}
 

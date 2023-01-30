@@ -133,10 +133,10 @@ int key_main(int argc, char *argv[])
 	if (!args_ok)
 		goto err;
 
-	generate_key(arg.username, strlen(arg.username),
-		     arg.password, strlen(arg.password),
-		     (uint8_t *)arg.reg, strlen(arg.reg),
-		     arg.key_handle, arg.attributes);
+	res = generate_key(arg.username, strlen(arg.username),
+			   arg.password, strlen(arg.password),
+			   (uint8_t *)arg.reg, strlen(arg.reg),
+			   arg.key_handle, arg.attributes);
 err:
 	return res;
 }

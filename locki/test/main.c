@@ -570,6 +570,12 @@ TEST(keys, generate_key)
 			      reg, sizeof(reg),
 			      key_handle, attributes),
 		 0);
+
+	CHECK_NE(generate_key(username, strlen(username),
+			      password, strlen(password),
+			      reg, sizeof(reg),
+			      key_handle, attributes),
+		 0);
 }
 
 /*
@@ -588,6 +594,11 @@ TEST(debug, dump_users)
 TEST(debug, dump_registers)
 {
 	debug_dump_registers();
+}
+
+TEST(debug, dump_keys)
+{
+	debug_dump_keys();
 }
 
 #if 0
