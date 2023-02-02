@@ -33,6 +33,8 @@
 
 #include <ta_locki_user.h>
 
+#define SIGNED_MEASUREMENT BIT(1)
+
 struct reg_element {
 	uint8_t id[TEE_SHA256_HASH_SIZE];
 	uint32_t len;
@@ -57,5 +59,6 @@ TEE_Result get_measure(uint8_t *username, size_t username_len,
 		       uint8_t *password __maybe_unused,
 		       size_t password_len __maybe_unused,
 		       uint8_t *reg, size_t reg_len,
-		       uint8_t *digest, uint32_t *digest_size);
+		       uint8_t *digest, uint32_t *digest_size,
+		       uint32_t properties);
 #endif

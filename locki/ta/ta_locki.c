@@ -322,7 +322,37 @@ static TEE_Result ta_get_measure(uint32_t param_types, TEE_Param params[4])
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	return get_measure(username, username_len, password, password_len, reg, reg_len, digest, digest_size);
+	return get_measure(username, username_len,
+			   password, password_len,
+			   reg, reg_len,
+			   digest, digest_size, 0);
+}
+
+static TEE_Result ta_get_signed_measure(uint32_t param_types,
+					TEE_Param params[4])
+{
+        uint8_t *username = params[0].memref.buffer;
+	size_t username_len = params[0].memref.size;
+	uint8_t *password = params[1].memref.buffer;
+	uint32_t password_len = params[1].memref.size;
+	uint8_t *reg = params[2].memref.buffer;
+	uint32_t reg_len = params[2].memref.size;
+	uint8_t *digest = params[3].memref.buffer;
+	uint32_t *digest_size = &params[3].memref.size;
+	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
+						   TEE_PARAM_TYPE_MEMREF_INPUT,
+						   TEE_PARAM_TYPE_MEMREF_INPUT,
+						   TEE_PARAM_TYPE_MEMREF_OUTPUT);
+	DMSG("[[[ TA_LOCKI_CMD_GET_SIGNED_MEASURE ]]]");
+
+	if (param_types != exp_param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	return get_measure(username, username_len,
+			   password, password_len,
+			   reg, reg_len,
+			   digest, digest_size,
+			   SIGNED_MEASUREMENT);
 }
 
 static TEE_Result ta_create_user(uint32_t param_types, TEE_Param params[4])
@@ -397,6 +427,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void __maybe_unused *sess_ctx,
 		return ta_measure(param_types, params);
 	case TA_LOCKI_CMD_GET_MEASURE:
 		return ta_get_measure(param_types, params);
+	case TA_LOCKI_CMD_GET_SIGNED_MEASURE:
+		return ta_get_signed_measure(param_types, params);
 	case TA_LOCKI_CMD_CREATE_USER:
 		return ta_create_user(param_types, params);
 

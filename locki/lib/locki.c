@@ -431,6 +431,46 @@ err:
 	return res;
 }
 
+/*
+ * FIXME: I would like that this function use the same call to the Locki TA as
+ * we do for "get_measure". We could do that if we provide a flag instead
+ * indicating what kind of operation we'd like to do on the measurement. But for
+ * now and since we have a limited amount of GP parameters to use, let's
+ * re-implement this as a separate function.
+ */
+int get_signed_measure(char *username, size_t username_len,
+		       char *password, size_t password_len,
+		       uint8_t *reg, size_t reg_len,
+		       uint8_t *digest)
+{
+	int res = ERROR;
+	if (!username || username_len == 0 ||
+	    !reg || reg_len == 0 || !digest)
+		return res;
+
+	res = open_session();
+	if (res)
+		goto err;
+
+	td.operation.params[0].tmpref.buffer = username;
+	td.operation.params[0].tmpref.size = username_len;
+	td.operation.params[1].tmpref.buffer = password;
+	td.operation.params[1].tmpref.size = password_len;
+	td.operation.params[2].tmpref.buffer = reg;
+	td.operation.params[2].tmpref.size = reg_len;
+	td.operation.params[3].tmpref.buffer = digest;
+	td.operation.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_INPUT,
+						   TEEC_MEMREF_TEMP_INPUT,
+						   TEEC_MEMREF_TEMP_INPUT,
+						   TEEC_MEMREF_TEMP_OUTPUT);
+	res = teec_invoke(TA_LOCKI_CMD_GET_SIGNED_MEASURE);
+	if (res)
+		goto err;
+err:
+	close_session();
+	return res;
+}
+
 int create_user(char *username, size_t username_len,
 		char *password, size_t password_len,
 		uint8_t *salt, size_t salt_len,

@@ -579,6 +579,43 @@ TEST(keys, generate_key)
 }
 
 /*
+ * This tests that it's possible to sign a measurement with the users derived
+ * password.
+ *
+ * Note that this test is extremely fragile since:
+ * a) It's dependant on the order of previous tests in the little test suite.
+ * b) It's necessary that the same user, password, salt and flags have been
+ * used.
+ * c) That the amount of prior measurements done on the same register is the
+ * same.
+ *
+ * In short, this test strongly depends on successful runs of tests:
+ *    user.create_user
+ *    measure.measure_normal
+ *
+ * FIXME: It would probably be better to  changes this to create a user, make
+ * the measurement and then retrieve it. That would isolate the test.
+ */
+TEST(measure, retrieve_signed_measurement)
+{
+	char username[] = "user";
+	char password[] = "user";
+	uint8_t reg[] = { 0x1 };
+	uint8_t digest[32]; /* FIXME: Use a SHA256 length define */
+	uint8_t expected[] = {
+		0x7d, 0x56, 0x71, 0xcd, 0x07, 0x1b, 0x4f, 0x80,
+		0xb9, 0xbc, 0x77, 0x34, 0x90, 0xcd, 0xd5, 0xaf,
+		0x1c, 0xcd, 0x82, 0xab, 0x49, 0xa1, 0xd0, 0xb1,
+		0x69, 0x5b, 0x22, 0xec, 0xc8, 0x01, 0xbf, 0xaf };
+
+	CHECK_EQ(get_signed_measure(username, strlen(username), password,
+				    strlen(password), reg, sizeof(reg),
+				    digest),
+		 0);
+	CHECK_BUF_EQ(digest, expected, sizeof(expected));
+}
+
+/*
  * Dump all existing users into the secure UART.
  * FIMXE: Should not be available on debug builds.
  */

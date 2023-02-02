@@ -27,6 +27,7 @@
 #include <tee_api_defines.h>
 #include <tee_internal_api.h>
 
+#include <common.h>
 #include <ta_locki_crypto.h>
 #include <ta_locki_measure.h>
 #include <ta_locki_user.h>
@@ -147,7 +148,8 @@ TEE_Result get_measure(uint8_t *username, size_t username_len,
 		       uint8_t *password __maybe_unused,
 		       size_t password_len __maybe_unused,
 		       uint8_t *reg, size_t reg_len,
-		       uint8_t *digest, uint32_t *digest_size)
+		       uint8_t *digest, uint32_t *digest_size,
+		       uint32_t properties)
 {
 	struct user *user = NULL;
 	struct reg_element *re = NULL;
@@ -168,8 +170,14 @@ TEE_Result get_measure(uint8_t *username, size_t username_len,
 		goto err;
 	}
 
-	memcpy(digest, re->val, TEE_SHA256_HASH_SIZE);
 	*digest_size = TEE_SHA256_HASH_SIZE;
+	if (IS_SET(properties, SIGNED_MEASUREMENT)) {
+		hmac_sha256(user->password, user->password_len,
+			    re->val, re->len,
+			    digest, digest_size);
+	} else {
+		memcpy(digest, re->val, TEE_SHA256_HASH_SIZE);
+	}
 err:
 	return res;
 }
