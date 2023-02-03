@@ -43,6 +43,7 @@ static struct argp_option options[] = {
 	{ "get",       'g', 0,           0,  "Read out a measured value" },
 	{ "password",  'p', "VALUE",     0,  "Authentication password" },
 	{ "reg",       'r', "ID",        0,  "Register ID" },
+	{ "sign",      's', 0,           0,  "Get the signature for the measurement" },
 	{ "user",      'u', "USERNAME",  0,  "The name of the user" },
 	{ "verbose",   'v', 0,           0,  "Verbose output" },
 	{ 0 }
@@ -54,6 +55,7 @@ struct arguments {
 	char *reg;
 	char *data;
 	bool get;
+	bool sign;
 	bool verbose;
 };
 
@@ -74,6 +76,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		break;
 	case 'r':
 		arguments->reg = arg;
+		break;
+	case 's':
+		arguments->sign = true;
 		break;
 	case 'u':
 		arguments->username = arg;
@@ -113,6 +118,7 @@ int measure_main(int argc, char *argv[])
 	arg.reg = NULL;
 	arg.data = NULL;
 	arg.get = false;
+	arg.sign = false;
 	arg.verbose = false;
 
 	argp_parse(&argp, argc, argv, 0, 0, &arg);
@@ -129,11 +135,19 @@ int measure_main(int argc, char *argv[])
 			}
 
 			/* Unauthenticated */
-			printf("Get un-authenticated measure\n");
-			res = get_measure(arg.username, strlen(arg.username),
-					  NULL, 0,
-					  (uint8_t *)arg.reg, strlen(arg.reg),
-					  digest);
+			if (arg.sign) {
+				printf("Getting the signature of a measurement\n");
+				res = get_signed_measure(arg.username, strlen(arg.username),
+							 NULL, 0,
+							 (uint8_t *)arg.reg, strlen(arg.reg),
+							 digest);
+			} else {
+				printf("Getting an un-authenticated measurement\n");
+				res = get_measure(arg.username, strlen(arg.username),
+						  NULL, 0,
+						  (uint8_t *)arg.reg, strlen(arg.reg),
+						  digest);
+			}
 			if (res)
 				goto err;
 
