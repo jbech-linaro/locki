@@ -188,9 +188,9 @@ static TEE_Result status(uint32_t *state, uint32_t *users, uint32_t *keys)
 static TEE_Result ta_add_key(uint32_t param_types, TEE_Param params[4])
 {
 	const char *key = params[0].memref.buffer;
-	const uint32_t *key_size = &params[0].memref.size;
+	const uint32_t key_size = params[0].memref.size;
 	const char *identifier = params[1].memref.buffer;
-	const uint32_t *identifier_size = &params[1].memref.size;
+	const uint32_t identifier_size = params[1].memref.size;
 	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INOUT,
 						   TEE_PARAM_TYPE_MEMREF_INOUT,
 						   TEE_PARAM_TYPE_NONE,
@@ -312,7 +312,7 @@ static TEE_Result ta_get_measure(uint32_t param_types, TEE_Param params[4])
 	uint8_t *reg = params[2].memref.buffer;
 	uint32_t reg_len = params[2].memref.size;
 	uint8_t *digest = params[3].memref.buffer;
-	uint32_t *digest_size = &params[3].memref.size;
+	size_t *digest_size = &params[3].memref.size;
 	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
 						   TEE_PARAM_TYPE_MEMREF_INPUT,
 						   TEE_PARAM_TYPE_MEMREF_INPUT,
@@ -338,7 +338,7 @@ static TEE_Result ta_get_signed_measure(uint32_t param_types,
 	uint8_t *reg = params[2].memref.buffer;
 	uint32_t reg_len = params[2].memref.size;
 	uint8_t *digest = params[3].memref.buffer;
-	uint32_t *digest_size = &params[3].memref.size;
+	size_t *digest_size = &params[3].memref.size;
 	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
 						   TEE_PARAM_TYPE_MEMREF_INPUT,
 						   TEE_PARAM_TYPE_MEMREF_INPUT,

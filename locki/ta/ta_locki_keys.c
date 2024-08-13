@@ -80,11 +80,11 @@ static bool key_exist(struct key *key)
 	return false;
 }
 
-void add_key(const char *key, const uint32_t *key_size,
-	     const char *identifier, const uint32_t *identifier_size)
+void add_key(const char *key, const uint32_t key_size,
+	     const char *identifier, const uint32_t identifier_size)
 {
-	DMSG("Got identifier: '%s' (%u)", identifier, *identifier_size);
-	DMSG("Got identifier: '%s' (%u)", key, *key_size);
+	DMSG("Got identifier: '%s' (%u)", identifier, identifier_size);
+	DMSG("Got identifier: '%s' (%u)", key, key_size);
 }
 
 TEE_Result generate_key(uint8_t *username, size_t username_len,

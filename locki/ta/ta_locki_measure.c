@@ -148,7 +148,7 @@ TEE_Result get_measure(uint8_t *username, size_t username_len,
 		       uint8_t *password __maybe_unused,
 		       size_t password_len __maybe_unused,
 		       uint8_t *reg, size_t reg_len,
-		       uint8_t *digest, uint32_t *digest_size,
+		       uint8_t *digest, size_t *digest_size,
 		       uint32_t properties)
 {
 	struct user *user = NULL;

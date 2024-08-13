@@ -38,8 +38,8 @@ struct key {
 	TAILQ_ENTRY(key) entry;
 };
 
-void add_key(const char *key, const uint32_t *key_size,
-	     const char *identifier, const uint32_t *identifier_size);
+void add_key(const char *key, const uint32_t key_size,
+	     const char *identifier, const uint32_t identifier_size);
 
 TEE_Result generate_key(uint8_t *username, size_t username_len,
 			uint8_t *password, size_t password_len,

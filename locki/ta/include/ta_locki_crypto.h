@@ -48,6 +48,6 @@ TEE_Result sha256(const uint8_t *in, const size_t inlen, uint8_t *digest);
 
 TEE_Result hmac_sha256(const uint8_t *key, const size_t keylen,
 		       const uint8_t *in, const size_t inlen,
-		       uint8_t *out, uint32_t *outlen);
+		       uint8_t *out, size_t *outlen);
 
 #endif

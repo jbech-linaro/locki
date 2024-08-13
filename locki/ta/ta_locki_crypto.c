@@ -72,7 +72,7 @@ TEE_Result sha256_final(struct crypto_context *ctx,
 			uint8_t *digest)
 {
 	TEE_Result res = TEE_ERROR_BAD_PARAMETERS;
-	uint32_t hash_len = TEE_SHA256_HASH_SIZE;
+	size_t hash_len = TEE_SHA256_HASH_SIZE;
 
 	if (!ctx || !digest) {
 		DMSG("ctx is: %s NULL", ctx ? "NOT" : "");
@@ -122,7 +122,7 @@ err:
  */
 TEE_Result hmac_sha256(const uint8_t *key, const size_t keylen,
 		       const uint8_t *in, const size_t inlen,
-		       uint8_t *out, uint32_t *outlen)
+		       uint8_t *out, size_t *outlen)
 {
 	TEE_Attribute attr = { 0 };
 	TEE_ObjectHandle key_handle = TEE_HANDLE_NULL;
