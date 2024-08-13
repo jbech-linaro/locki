@@ -114,6 +114,7 @@ do
 		v) V=${OPTARG};;
 
 		h) echo " -a <32, 64>            default: 64 (architecture)"
+		   echo " -b                     generate json clangd file"
 		   echo " -c                     clean"
 		   echo " -d                     mount point to shared folder with TA's"
 		   echo " -f <PLATFORM_FLAVOR>   default: ${PLATFORM_FLAVOR}"
