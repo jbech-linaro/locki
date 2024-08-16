@@ -357,13 +357,14 @@ static TEE_Result ta_get_signed_measure(uint32_t param_types,
 
 static TEE_Result ta_create_user(uint32_t param_types, TEE_Param params[4])
 {
-	uint8_t *user = params[0].memref.buffer;
-	uint32_t user_len = params[0].memref.size;
-	uint8_t *password = params[1].memref.buffer;
-	uint32_t password_len = params[1].memref.size;
-	uint8_t *salt = params[2].memref.buffer;
-	uint32_t salt_len = params[2].memref.size;
-	uint32_t flags = params[3].value.a;
+	struct user_params up = { 0 };
+	up.uinfo.id = params[0].memref.buffer;
+	up.uinfo.len = params[0].memref.size;
+	up.ucreds.password = params[1].memref.buffer;
+	up.ucreds.password_len = params[1].memref.size;
+	up.ucreds.salt = params[2].memref.buffer;
+	up.ucreds.salt_len = params[2].memref.size;
+	up.flags = params[3].value.a;
 	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INOUT,
 						   TEE_PARAM_TYPE_MEMREF_INOUT,
 						   TEE_PARAM_TYPE_MEMREF_INPUT,
@@ -373,8 +374,7 @@ static TEE_Result ta_create_user(uint32_t param_types, TEE_Param params[4])
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	return create_user(user, user_len, password, password_len, salt,
-			   salt_len, flags);
+	return create_user(&up);
 }
 
 

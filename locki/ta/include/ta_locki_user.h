@@ -30,6 +30,24 @@
 #include <tee_api_types.h>
 #include <utee_defines.h>
 
+struct user_info {
+	uint8_t *id;
+	size_t len;
+};
+
+struct user_credentials {
+	uint8_t *password;
+	uint32_t password_len;
+	uint8_t *salt;
+	uint32_t salt_len;
+};
+
+struct user_params {
+	struct user_info uinfo;
+	struct user_credentials ucreds;
+	uint32_t flags;
+};
+
 struct user {
 	uint8_t name[32];
 	uint8_t name_len;
@@ -41,14 +59,10 @@ struct user {
 	TAILQ_ENTRY(user) entry;
 };
 
-
 struct user* find_user(uint8_t *username, size_t username_len);
 struct user* find_and_validate_user(uint8_t *username, size_t username_len,
 				    uint8_t *password, size_t password_len);
-TEE_Result create_user(uint8_t *username, uint32_t username_len,
-		       uint8_t *password, uint32_t password_len,
-		       uint8_t *salt, uint32_t salt_len,
-		       uint32_t flags);
+TEE_Result create_user(struct user_params *up);
 uint32_t nbr_of_users(void);
 
 #endif

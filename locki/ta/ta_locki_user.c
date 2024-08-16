@@ -187,10 +187,7 @@ success:
 	return user;
 }
 
-static TEE_Result add_user(uint8_t *username, uint32_t username_len,
-			   uint8_t *password, uint32_t password_len,
-			   uint8_t *salt, uint32_t salt_len,
-			   uint32_t flags)
+static TEE_Result add_user(struct user_params *up)
 {
 	struct user *user = NULL;
 	TEE_Result res = TEE_ERROR_GENERIC;
@@ -199,17 +196,21 @@ static TEE_Result add_user(uint8_t *username, uint32_t username_len,
 	if (!user)
 		return TEE_ERROR_OUT_OF_MEMORY;
 
-	memcpy(user->name, username, username_len);
-	user->name_len = username_len;
-	user->flags = flags;
+	memcpy(user->name, up->uinfo.id, up->uinfo.len);
+	user->name_len = up->uinfo.len;
+	user->flags = up->flags;
 
-	res = create_password_digest(user, password, password_len, salt, salt_len);
-	if (res != TEE_SUCCESS)
+        res = create_password_digest(user,
+				     up->ucreds.password,
+                                     up->ucreds.password_len,
+				     up->ucreds.salt,
+				     up->ucreds.salt_len);
+        if (res != TEE_SUCCESS)
 		goto err;
 
 	/* Add the user to the users list */
 	TAILQ_INSERT_TAIL(&user_list, user, entry);
-	DMSG("User '%s' has been added", (char *)username);
+	DMSG("User '%s' has been added", (char *)user->name);
 	goto success;
 err:
 	TEE_Free(user);
@@ -217,10 +218,7 @@ success:
 	return res;
 }
 
-TEE_Result create_user(uint8_t *username, uint32_t username_len,
-		       uint8_t *password, uint32_t password_len,
-		       uint8_t *salt, uint32_t salt_len,
-		       uint32_t flags)
+TEE_Result create_user(struct user_params *up)
 {
 	TEE_Result res = TEE_ERROR_BAD_PARAMETERS;
 	struct user *user = NULL;
@@ -229,23 +227,22 @@ TEE_Result create_user(uint8_t *username, uint32_t username_len,
 	 * FIXME: Perhaps allow empty password and generate a random password
 	 * for the user.
 	 */
-	if (!username || username_len == 0 || username_len > 32)
+	if (!up->uinfo.id || up->uinfo.len == 0 || up->uinfo.len > 32)
 		return res;
 
-	if (password && password_len == 0)
+	if (up->ucreds.password && up->ucreds.password_len == 0)
 		return res;
 
 	/* FIXME: autogenerate password when none is provided */
 
 	/* Add user if not already existing */
-	user = find_user(username, username_len);
+	user = find_user(up->uinfo.id, up->uinfo.len);
 	if (user) {
 		res = TEE_ERROR_GENERIC;
 		goto err;
 	}
 
-	res = add_user(username, username_len, password, password_len, salt,
-		       salt_len, flags);
+	res = add_user(up);
 err:
 	return res;
 }
