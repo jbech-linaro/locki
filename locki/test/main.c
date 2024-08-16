@@ -281,7 +281,7 @@ TEST(measure, bad_parameters)
 			 reg, sizeof(reg), data, 0),
 		 0);
 
-	/* Data size = 0 */
+	/* Too long password */
 	CHECK_NE(measure(too_long_username, strlen(too_long_username), password,
 			 sizeof(password), reg, sizeof(reg), data,
 			 sizeof(data)),
@@ -593,7 +593,7 @@ TEST(keys, generate_key)
  *    user.create_user
  *    measure.measure_normal
  *
- * FIXME: It would probably be better to  changes this to create a user, make
+ * FIXME: It would probably be better to change this to create a user, make
  * the measurement and then retrieve it. That would isolate the test.
  */
 TEST(measure, retrieve_signed_measurement)

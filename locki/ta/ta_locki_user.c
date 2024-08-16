@@ -178,11 +178,11 @@ struct user* find_and_validate_user(uint8_t *username, size_t username_len,
 		return NULL;
 
 	if (user->flags & USER_UNAUTHENTICATED_MEASURE)
-		return user;
+		goto success;
 
 	if (!password_is_correct(user, password, password_len))
 		return NULL;
-
+success:
 	DMSG("Found a valid user");
 	return user;
 }
